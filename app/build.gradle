@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'hugo'
+apply plugin: 'com.github.forsety.adr'
 
 android {
     compileSdkVersion 21
@@ -22,4 +24,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.2'
+    compile 'com.squareup.flow:flow:0.+'
+    compile 'com.google.code.gson:gson:2.3'
 }
