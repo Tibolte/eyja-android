@@ -49,6 +49,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     ViewPager mViewPager;
 
+    /**
+     * MARK: Lifecycle methods
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +101,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         initSections();
     }
 
+    /**
+     * MARK: Overrides
+     */
+
+    @Override
+    public void onBackPressed() {
+        if(!getFlow().goBack()) {
+            finish();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -145,6 +159,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     }
 
+    /**
+     * MARK: Pager adapter
+     */
 
     public static class DummyPagerAdapter extends PagerAdapter {
 
@@ -193,6 +210,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return "Section " + (position + 1);
         }
     }
+
+    /**
+     * MARK: Private methods
+     */
 
     private void initSections() {
         sections = new Section[] {new Section(new DummyPresenter(), "Dummy 1"), new Section(new DummyPresenter(), "Dummy 2"), new Section(new DummyPresenter(), "Dummy 3")};
