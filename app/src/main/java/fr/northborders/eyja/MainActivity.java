@@ -157,6 +157,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         BasePresenter from = (BasePresenter) getFlow().getBackstack().current().getScreen();
         BasePresenter to = (BasePresenter)nextBackstack.current().getScreen();
 
+        //TODO: move out the pager if wanna display something else, useful when going to see detail view
     }
 
     /**
