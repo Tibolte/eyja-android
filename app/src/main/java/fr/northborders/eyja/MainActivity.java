@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,7 +33,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     private Section[] sections = null;
 
-    DummyPagerAdapter mDummyPagerAdpater;
+    private DummyPagerAdapter mDummyPagerAdpater;
+    private FrameLayout switcher;
 
     private Gson gson = new Gson();
     private RootPresenter rootPresenter = new RootPresenter();
@@ -71,6 +73,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Specify that we will be displaying tabs in the action bar.
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        switcher = (FrameLayout) findViewById(R.id.switcher);
 
         // Set up the ViewPager, attaching the adapter and setting up a listener for when the
         // user swipes between sections.
@@ -158,6 +162,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         BasePresenter to = (BasePresenter)nextBackstack.current().getScreen();
 
         //TODO: move out the pager if wanna display something else, useful when going to see detail view
+
+        switcher.removeViewAt(0);
+
+        if (to instanceof RootPresenter) {
+            switcher.addView(mViewPager, 0);
+        }
+        else {
+            switcher.addView(to.getView(this, switcher), 0);
+            //TODO: update title
+            if (from instanceof RootPresenter) {
+                //maybe do some other actions
+            }
+        }
+
+        // We're done transitioning
+        callback.onComplete();
     }
 
     /**
