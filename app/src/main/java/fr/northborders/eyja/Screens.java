@@ -13,4 +13,8 @@ public final class Screens {
 
     }
 
+    @Layout(R.layout.view_home)
+    public static class Home extends Screen {
+    }
+
 }
