@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import fr.northborders.eyja.R;
+import fr.northborders.eyja.adapters.HomePagerAdapter;
 import fr.northborders.eyja.util.Utils;
 
 /**
@@ -16,13 +17,16 @@ import fr.northborders.eyja.util.Utils;
 public class HomeView extends LinearLayout{
 
     @InjectView(R.id.sliding_tabs)
-    SlidingTabLayout slidingTabLayout;
+    SlidingTabLayout mSlidingTabLayout;
 
     @InjectView(R.id.viewpager)
-    ViewPager viewPager;
+    ViewPager mViewPager;
+
+    private Context mContext;
 
     public HomeView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
 
         setOrientation(VERTICAL);
         Utils.inject(context, this);
@@ -34,6 +38,7 @@ public class HomeView extends LinearLayout{
 
         ButterKnife.inject(this);
 
-        //TODO: set adapter
+        mViewPager.setAdapter(new HomePagerAdapter(mContext));
+        mSlidingTabLayout.setViewPager(mViewPager);
     }
 }

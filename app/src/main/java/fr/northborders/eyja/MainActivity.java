@@ -34,7 +34,7 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
      * {@link fr.northborders.eyja.Screens.Dummy}.
      */
     private final FlowBundler flowBundler =
-            new FlowBundler(new Screens.Dummy(), MainActivity.this,
+            new FlowBundler(new Screens.Home(), MainActivity.this,
                     new GsonParcer<>(new Gson()));
 
     @InjectView(R.id.container)
