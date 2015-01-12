@@ -33,7 +33,7 @@ public class HomePagerAdapter extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        return 3;
+        return mSections.length;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class HomePagerAdapter extends PagerAdapter {
         // Inflate a new layout from our resources
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        Screen screen = new Screens.Dummy();
+        Screen screen = mSections[position].getScreen();
         Class<Object> screenType = ObjectUtils.getClass(screen);
         Layout layout = screenType.getAnnotation(Layout.class);
         checkNotNull(layout, "@%s annotation not found on class %s", Layout.class.getSimpleName(),
@@ -62,6 +62,7 @@ public class HomePagerAdapter extends PagerAdapter {
 
         View view = inflater.inflate(layoutResId,
                 container, false);
+        view.setTag(position);
         // Add the newly created View to the ViewPager
         container.addView(view);
 

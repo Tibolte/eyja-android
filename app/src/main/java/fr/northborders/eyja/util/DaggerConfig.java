@@ -1,7 +1,11 @@
 package fr.northborders.eyja.util;
 
+import java.util.List;
+
 import dagger.Module;
 import dagger.Provides;
+import fr.northborders.eyja.SampleData;
+import fr.northborders.eyja.model.Feed;
 import fr.northborders.eyja.views.DummyView;
 import fr.northborders.eyja.views.FeedsView;
 import fr.northborders.eyja.views.HomeView;
@@ -22,5 +26,8 @@ import fr.northborders.eyja.views.WeatherView;
         library = true
 )
 public class DaggerConfig {
-
+    @Provides
+    List<Feed> provideFeeds() {
+        return SampleData.FEEDS;
+    }
 }
