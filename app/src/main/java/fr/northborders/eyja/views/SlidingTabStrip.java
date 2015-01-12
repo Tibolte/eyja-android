@@ -5,12 +5,20 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-class SlidingTabStrip extends LinearLayout {
+import fr.northborders.eyja.util.ScreenUtils;
+
+class SlidingTabStrip extends FrameLayout {
+
+    private static final String TAG = SlidingTabStrip.class.getSimpleName();
 
     private static final int DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS = 2;
     private static final byte DEFAULT_BOTTOM_BORDER_COLOR_ALPHA = 0x26;
@@ -34,6 +42,7 @@ class SlidingTabStrip extends LinearLayout {
 
     private int mSelectedPosition;
     private float mSelectionOffset;
+    private int mTabWidth;
 
     private SlidingTabLayout.TabColorizer mCustomTabColorizer;
     private final SimpleTabColorizer mDefaultTabColorizer;
@@ -143,6 +152,36 @@ class SlidingTabStrip extends LinearLayout {
             mDividerPaint.setColor(tabColorizer.getDividerColor(i));
             canvas.drawLine(child.getRight(), separatorTop, child.getRight(),
                     separatorTop + dividerHeightPx, mDividerPaint);
+        }
+    }
+
+    private void layoutTabs() {
+        Log.d(TAG, String.format("layoutTabs %d",mTabWidth));
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mTabWidth,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.gravity = Gravity.NO_GRAVITY;
+            layoutParams.setMargins(i*mTabWidth,0,0,0);
+            child.setLayoutParams(layoutParams);
+        }
+    }
+
+    @Override
+    public void addView(View child) {
+        super.addView(child);
+        Point p = ScreenUtils.getScreenSize(getContext());
+        mTabWidth = p.x / getChildCount();
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        int childCount = getChildCount();
+        if (childCount > 0) {
+            mTabWidth = w / childCount;
+            Log.d(TAG, String.format("onSizeChanged %d", mTabWidth));
+            layoutTabs();
         }
     }
 

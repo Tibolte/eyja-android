@@ -37,7 +37,7 @@ public class HomePagerAdapter extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        return 10;
+        return 3;
     }
 
     @Override
