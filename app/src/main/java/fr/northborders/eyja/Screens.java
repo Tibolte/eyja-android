@@ -17,4 +17,19 @@ public final class Screens {
     public static class Home extends Screen {
     }
 
+    @Layout(R.layout.view_feeds)
+    public static class Feeds extends Screen {
+
+    }
+
+    @Layout(R.layout.view_videos)
+    public static class Videos extends Screen {
+
+    }
+
+    @Layout(R.layout.view_weather)
+    public static class Weather extends Screen {
+
+    }
+
 }

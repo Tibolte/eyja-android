@@ -1,46 +1,53 @@
 package fr.northborders.eyja;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.gson.Gson;
 
 import flow.Backstack;
 import flow.Flow;
 import flow.HasParent;
+import flow.Layout;
+import fr.northborders.eyja.adapters.HomePagerAdapter;
 import fr.northborders.eyja.appflow.AppFlow;
 import fr.northborders.eyja.appflow.FlowBundler;
 import fr.northborders.eyja.appflow.Screen;
 import fr.northborders.eyja.screenswitcher.FrameScreenSwitcherView;
 import fr.northborders.eyja.util.GsonParcer;
+import fr.northborders.eyja.util.ObjectUtils;
+import fr.northborders.eyja.views.HomeView;
 import hugo.weaving.DebugLog;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+
+import static fr.northborders.eyja.util.Preconditions.checkNotNull;
 
 
 public class MainActivity extends ActionBarActivity implements Flow.Listener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private Section[] mSections = null;
+
     /**
      * Persists the {@link Flow} in the bundle. Initialized with the home screen,
      * {@link fr.northborders.eyja.Screens.Dummy}.
      */
-    private final FlowBundler flowBundler =
+    private final FlowBundler mFlowBundler =
             new FlowBundler(new Screens.Home(), MainActivity.this,
                     new GsonParcer<>(new Gson()));
 
     @InjectView(R.id.container)
-    FrameScreenSwitcherView container;
+    FrameScreenSwitcherView mContainer;
 
-    private AppFlow appFlow;
+    private AppFlow mAppFlow;
 
     /**
      * MARK: Lifecycle methods
@@ -49,7 +56,7 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        appFlow = flowBundler.onCreate(savedInstanceState);
+        mAppFlow = mFlowBundler.onCreate(savedInstanceState);
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(false);
@@ -58,16 +65,18 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
         ButterKnife.inject(this);
 
         AppFlow.loadInitialScreen(this);
+
+        initSections();
     }
 
     @Override public Object getSystemService(String name) {
-        if (AppFlow.isAppFlowSystemService(name)) return appFlow;
+        if (AppFlow.isAppFlowSystemService(name)) return mAppFlow;
         return super.getSystemService(name);
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        flowBundler.onSaveInstanceState(outState);
+        mFlowBundler.onSaveInstanceState(outState);
     }
 
     @Override
@@ -92,8 +101,12 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * MARK: Overrides
+     */
+
     @Override public void onBackPressed() {
-        if (!container.onBackPressed()) {
+        if (!mContainer.onBackPressed()) {
             super.onBackPressed();
         }
     }
@@ -102,7 +115,7 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
     @Override
     public void go(Backstack nextBackstack, Flow.Direction direction, Flow.Callback callback) {
         Screen screen = (Screen) nextBackstack.current().getScreen();
-        container.showScreen(screen, direction, callback);
+        mContainer.showScreen(screen, direction, callback);
 
         setTitle(screen.getClass().getSimpleName());
 
@@ -112,5 +125,23 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
         actionBar.setHomeButtonEnabled(hasUp);
 
         invalidateOptionsMenu();
+    }
+
+    /**
+     * MARK: Private methods
+     */
+
+    private void initSections() {
+
+        if(mSections == null) {
+            mSections = new Section[] {
+                    new Section(new Screens.Feeds(), "Feeds"),
+                    new Section(new Screens.Videos(), "Videos"),
+                    new Section(new Screens.Weather(), "Weather"),
+            };
+        }
+
+        HomeView mHomeview = (HomeView) mContainer.getChildAt(0);
+        mHomeview.setSections(mSections);
     }
 }

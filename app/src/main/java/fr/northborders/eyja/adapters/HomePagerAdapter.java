@@ -1,21 +1,15 @@
 package fr.northborders.eyja.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import flow.Layout;
-import fr.northborders.eyja.MainActivity;
-import fr.northborders.eyja.R;
 import fr.northborders.eyja.Screens;
+import fr.northborders.eyja.Section;
 import fr.northborders.eyja.appflow.Screen;
-import fr.northborders.eyja.screenswitcher.PathContext;
-import fr.northborders.eyja.screenswitcher.SimpleSwitcher;
 import fr.northborders.eyja.util.ObjectUtils;
 
 import static fr.northborders.eyja.util.Preconditions.checkNotNull;
@@ -27,9 +21,11 @@ public class HomePagerAdapter extends PagerAdapter {
 
     private static final String TAG = HomePagerAdapter.class.getSimpleName();
     private Context mContext;
+    private Section[] mSections;
 
-    public HomePagerAdapter(Context context) {
+    public HomePagerAdapter(Context context, Section[] sections) {
         this.mContext = context;
+        this.mSections = sections;
     }
 
     /**
@@ -47,7 +43,7 @@ public class HomePagerAdapter extends PagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return "Item " + (position + 1);
+        return mSections == null ? "" : mSections[position].getTile();
     }
 
     @Override
@@ -79,4 +75,7 @@ public class HomePagerAdapter extends PagerAdapter {
         container.removeView((View) object);
     }
 
+    public void setSections(Section[] sections) {
+        this.mSections = sections;
+    }
 }

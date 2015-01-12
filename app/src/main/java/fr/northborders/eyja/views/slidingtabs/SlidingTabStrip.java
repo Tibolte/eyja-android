@@ -1,4 +1,4 @@
-package fr.northborders.eyja.views;
+package fr.northborders.eyja.views.slidingtabs;
 
 import android.R;
 import android.content.Context;
