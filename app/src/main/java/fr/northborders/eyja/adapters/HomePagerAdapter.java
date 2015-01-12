@@ -3,14 +3,22 @@ package fr.northborders.eyja.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import flow.Layout;
 import fr.northborders.eyja.MainActivity;
 import fr.northborders.eyja.R;
 import fr.northborders.eyja.Screens;
+import fr.northborders.eyja.appflow.Screen;
+import fr.northborders.eyja.screenswitcher.PathContext;
+import fr.northborders.eyja.screenswitcher.SimpleSwitcher;
+import fr.northborders.eyja.util.ObjectUtils;
+
+import static fr.northborders.eyja.util.Preconditions.checkNotNull;
 
 /**
  * Created by thibaultguegan on 11/01/15.
@@ -47,13 +55,19 @@ public class HomePagerAdapter extends PagerAdapter {
 
         // Inflate a new layout from our resources
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pager_item,
+
+        Screen screen = new Screens.Dummy();
+        Class<Object> screenType = ObjectUtils.getClass(screen);
+        Layout layout = screenType.getAnnotation(Layout.class);
+        checkNotNull(layout, "@%s annotation not found on class %s", Layout.class.getSimpleName(),
+                screenType.getName());
+        int layoutResId = layout.value();
+
+
+        View view = inflater.inflate(layoutResId,
                 container, false);
         // Add the newly created View to the ViewPager
         container.addView(view);
-
-        TextView title = (TextView) view.findViewById(R.id.txtsection);
-        title.setText(String.valueOf(position + 1));
 
         // Return the View
         return view;
@@ -64,4 +78,5 @@ public class HomePagerAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((View) object);
     }
+
 }

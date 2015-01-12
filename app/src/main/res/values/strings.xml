@@ -4,6 +4,6 @@
     <string name="app_name">Eyja</string>
     <string name="action_settings">Settings</string>
 
-    <string name="dummy_section_text">This is just a dummy section.</string>
+    <string name="dummy_section_text">You are in section %d.</string>
 
 </resources>
