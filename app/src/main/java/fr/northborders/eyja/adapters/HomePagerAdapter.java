@@ -6,8 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import flow.Layout;
-import fr.northborders.eyja.Screens;
 import fr.northborders.eyja.Section;
 import fr.northborders.eyja.appflow.Screen;
 import fr.northborders.eyja.util.ObjectUtils;
@@ -22,6 +24,8 @@ public class HomePagerAdapter extends PagerAdapter {
     private static final String TAG = HomePagerAdapter.class.getSimpleName();
     private Context mContext;
     private Section[] mSections;
+
+    private static final Map<Class, Integer> SCREEN_HOME_CACHE = new LinkedHashMap<>();
 
     public HomePagerAdapter(Context context, Section[] sections) {
         this.mContext = context;
@@ -54,15 +58,20 @@ public class HomePagerAdapter extends PagerAdapter {
 
         Screen screen = mSections[position].getScreen();
         Class<Object> screenType = ObjectUtils.getClass(screen);
-        Layout layout = screenType.getAnnotation(Layout.class);
-        checkNotNull(layout, "@%s annotation not found on class %s", Layout.class.getSimpleName(),
-                screenType.getName());
-        int layoutResId = layout.value();
+        Integer layoutResId = SCREEN_HOME_CACHE.get(screenType);
 
+        if (layoutResId == null) {
+            Layout layout = screenType.getAnnotation(Layout.class);
+            checkNotNull(layout, "@%s annotation not found on class %s", Layout.class.getSimpleName(),
+                    screenType.getName());
+            layoutResId = layout.value();
+            SCREEN_HOME_CACHE.put(screenType, layoutResId);
+        }
 
         View view = inflater.inflate(layoutResId,
                 container, false);
-        view.setTag(position);
+
+        view.setTag(screen);
         // Add the newly created View to the ViewPager
         container.addView(view);
 
@@ -76,7 +85,4 @@ public class HomePagerAdapter extends PagerAdapter {
         container.removeView((View) object);
     }
 
-    public void setSections(Section[] sections) {
-        this.mSections = sections;
-    }
 }
