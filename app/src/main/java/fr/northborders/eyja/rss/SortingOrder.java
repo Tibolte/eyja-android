@@ -1,6 +1,11 @@
 package fr.northborders.eyja.rss;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 import fr.northborders.eyja.model.RssFeed;
 
@@ -10,7 +15,19 @@ import fr.northborders.eyja.model.RssFeed;
 public class SortingOrder implements Comparator<RssFeed> {
 
     public int compare(RssFeed o1, RssFeed o2) {
-        return (o1.getTitle()).compareTo(o2.getTitle());
+        DateFormat format = new SimpleDateFormat("EEE, d LLL yyyy", Locale.ENGLISH);
+        Date date1 = new Date();
+        Date date2 = new Date();
+
+        try {
+            date1 = format.parse(o1.getPubDate());
+            date2 = format.parse(o2.getPubDate());
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return (date2).compareTo(date1);
     }
 
 }

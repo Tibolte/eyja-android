@@ -6,11 +6,13 @@ import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import fr.northborders.eyja.adapters.FeedsListAdapter;
 import fr.northborders.eyja.model.RssFeed;
+import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
 import fr.northborders.eyja.util.Utils;
 
@@ -67,9 +69,9 @@ public class FeedsView extends ListView {
 
         @Override
         protected void onPostExecute(String result) {
-            //TODO: sort
             if(mFeeds != null){
                 mAdapter = new FeedsListAdapter(mContext, mFeeds);
+                Collections.sort(mFeeds, new SortingOrder());
                 setAdapter(mAdapter);
             }
             Dialog.dismiss();
