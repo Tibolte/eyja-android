@@ -25,7 +25,7 @@ public class HomePagerAdapter extends PagerAdapter {
     private Context mContext;
     private Section[] mSections;
 
-    private static final Map<Class, Integer> SCREEN_HOME_CACHE = new LinkedHashMap<>();
+    private static final Map<Class, View> SCREEN_HOME_CACHE = new LinkedHashMap<>();
 
     public HomePagerAdapter(Context context, Section[] sections) {
         this.mContext = context;
@@ -58,20 +58,24 @@ public class HomePagerAdapter extends PagerAdapter {
 
         Screen screen = mSections[position].getScreen();
         Class<Object> screenType = ObjectUtils.getClass(screen);
-        Integer layoutResId = SCREEN_HOME_CACHE.get(screenType);
+        //Integer layoutResId = SCREEN_HOME_CACHE.get(screenType);
 
-        if (layoutResId == null) {
+        View view;
+        if (!SCREEN_HOME_CACHE.containsKey(screenType)) {
             Layout layout = screenType.getAnnotation(Layout.class);
             checkNotNull(layout, "@%s annotation not found on class %s", Layout.class.getSimpleName(),
                     screenType.getName());
-            layoutResId = layout.value();
-            SCREEN_HOME_CACHE.put(screenType, layoutResId);
+            int layoutResId = layout.value();
+            view = inflater.inflate(layoutResId,
+                    container, false);
+
+            view.setTag(screen);
+            SCREEN_HOME_CACHE.put(screenType, view);
+        }
+        else {
+            view = SCREEN_HOME_CACHE.get(screenType);
         }
 
-        View view = inflater.inflate(layoutResId,
-                container, false);
-
-        view.setTag(screen);
         // Add the newly created View to the ViewPager
         container.addView(view);
 
