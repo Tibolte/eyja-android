@@ -8,11 +8,6 @@ import fr.northborders.eyja.appflow.Screen;
  */
 public final class Screens {
 
-    @Layout(R.layout.view_dummy)
-    public static class Dummy extends Screen {
-
-    }
-
     @Layout(R.layout.view_home)
     public static class Home extends Screen {
     }

@@ -1,12 +1,6 @@
 package fr.northborders.eyja.util;
 
-import java.util.List;
-
 import dagger.Module;
-import dagger.Provides;
-import fr.northborders.eyja.SampleData;
-import fr.northborders.eyja.model.RssFeed;
-import fr.northborders.eyja.views.DummyView;
 import fr.northborders.eyja.views.FeedsView;
 import fr.northborders.eyja.views.HomeView;
 import fr.northborders.eyja.views.VideosView;
@@ -17,7 +11,6 @@ import fr.northborders.eyja.views.WeatherView;
  */
 @Module(
         injects = {
-                DummyView.class,
                 HomeView.class,
                 FeedsView.class,
                 VideosView.class,
