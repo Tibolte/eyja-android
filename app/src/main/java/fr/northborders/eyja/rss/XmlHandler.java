@@ -36,7 +36,6 @@ public class XmlHandler extends DefaultHandler {
         chars = new StringBuffer();
 
         if (qName.equalsIgnoreCase("media:content"))
-
         {
             if (!attributes.getValue("url").toString().equalsIgnoreCase("null")) {
                 feedStr.setImgLink(attributes.getValue("url").toString());
@@ -44,7 +43,13 @@ public class XmlHandler extends DefaultHandler {
                 feedStr.setImgLink("");
             }
         }
-
+        if (qName.equalsIgnoreCase("enclosure")) {
+            if (!attributes.getValue("url").toString().equalsIgnoreCase("null")) {
+                feedStr.setImgLink(attributes.getValue("url").toString());
+            } else {
+                feedStr.setImgLink("");
+            }
+        }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -67,6 +72,7 @@ public class XmlHandler extends DefaultHandler {
 
 
         }
+
         if (localName.equalsIgnoreCase("item")) {
             rssList.add(feedStr);
 

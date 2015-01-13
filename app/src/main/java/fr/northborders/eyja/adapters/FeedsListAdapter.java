@@ -13,6 +13,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -64,7 +66,7 @@ public class FeedsListAdapter extends BaseAdapter {
 
             viewHolder.txtFeedText = (TextView) convertView.findViewById(R.id.txt_feed_title);
             viewHolder.txtFeedUpdateTime = (TextView) convertView.findViewById(R.id.txt_feed_updated_time);
-            //viewHolder.imgFeed = (ImageView) convertView.findViewById(R.id.feed_image);
+            viewHolder.imgFeed = (ImageView) convertView.findViewById(R.id.img_feed);
 
             convertView.setTag(viewHolder);
         }
@@ -72,36 +74,19 @@ public class FeedsListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        try {
 
-            //Log.d("rssfeed", "imageAndTexts1.get(position).getImgLink() :: " + mImagesAndText.get(position).getImgLink() + " :: " + mImagesAndText.get(position).getTitle());
-            viewHolder.txtFeedText.setText(mFeeds.get(position).getTitle());
-            SpannableString content = new SpannableString(mFeeds.get(position).getPubDate());
-            content.setSpan(new UnderlineSpan(), 0, 13, 0);
+        //Log.d("rssfeed", "imageAndTexts1.get(position).getImgLink() :: " + mImagesAndText.get(position).getImgLink() + " :: " + mImagesAndText.get(position).getTitle());
+        viewHolder.txtFeedText.setText(mFeeds.get(position).getTitle());
+        SpannableString content = new SpannableString(mFeeds.get(position).getPubDate());
+        content.setSpan(new UnderlineSpan(), 0, 13, 0);
 
-            viewHolder.txtFeedUpdateTime.setText(content);
-            if(mFeeds.get(position).getImgLink() !=null){
+        viewHolder.txtFeedUpdateTime.setText(content);
+        if(mFeeds.get(position).getImgLink() !=null){
 
-
-                URL feedImage= new URL(mFeeds.get(position).getImgLink().toString());
-                /*if(!feedImage.toString().equalsIgnoreCase("null")){
-                    HttpURLConnection conn= (HttpURLConnection)feedImage.openConnection();
-                    InputStream is = conn.getInputStream();
-                    Bitmap img = BitmapFactory.decodeStream(is);
-                    viewHolder.imgFeed.setImageBitmap(img);
-                }
-                else{
-                    viewHolder.imgFeed.setBackgroundResource(R.drawable.im);
-                }*/
-            }
-
-
-        } catch (MalformedURLException e) {
+            Picasso.with(mContext).load(mFeeds.get(position).getImgLink()).into(viewHolder.imgFeed);
 
         }
-        catch (IOException e) {
 
-        }
 
         return convertView;
     }
