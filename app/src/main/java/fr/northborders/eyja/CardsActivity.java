@@ -38,7 +38,6 @@ public class CardsActivity extends ActionBarActivity {
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mAdapter = new CountryAdapter(CountryManager.getInstance().getCountries(), R.layout.card_layout, this);
         mRecyclerView.setAdapter(mAdapter);
