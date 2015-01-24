@@ -1,5 +1,11 @@
 package fr.northborders.eyja.rss;
 
+import android.util.Log;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -22,6 +28,8 @@ import fr.northborders.eyja.model.RssFeed;
  * Created by thibaultguegan on 13/01/15.
  */
 public class XmlHandler extends DefaultHandler {
+
+    private static final String TAG = XmlHandler.class.getSimpleName();
 
     private RssFeed feedStr = new RssFeed();
     private List<RssFeed> rssList = new ArrayList<RssFeed>();
@@ -81,6 +89,11 @@ public class XmlHandler extends DefaultHandler {
         if (localName.equalsIgnoreCase("item")) {
             rssList.add(feedStr);
 
+            if(feedStr.getUrl() != null) {
+                ParseContentThread parseContentThread = new ParseContentThread(feedStr);
+                new Thread(parseContentThread).start();
+            }
+
             feedStr = new RssFeed();
             articlesAdded++;
             if (articlesAdded >= ARTICLES_LIMIT) {
@@ -114,4 +127,26 @@ public class XmlHandler extends DefaultHandler {
         return rssList;
     }
 
+    public class ParseContentThread implements Runnable {
+
+        RssFeed feed;
+
+        public ParseContentThread(RssFeed feed) {
+            this.feed = feed;
+        }
+
+        @Override
+        public void run() {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(feed.getUrl().toString()).get();
+                Elements article = doc.select("article");
+                String text = article.text();
+                feed.setContent(text);
+                //Log.d(TAG, String.format("retriving text: %s", text));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

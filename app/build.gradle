@@ -29,4 +29,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.0.0'
     provided 'com.squareup.dagger:dagger-compiler:1.2.+'
     compile 'com.squareup.picasso:picasso:2.+'
+    compile 'org.jsoup:jsoup:1.7.+'
 }

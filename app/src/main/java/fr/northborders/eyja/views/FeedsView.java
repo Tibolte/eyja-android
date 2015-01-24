@@ -83,7 +83,7 @@ public class FeedsView extends ListView {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         RssFeed feed = mFeeds.get(position);
-                        Log.d(TAG, String.format("feed link is: %s", feed.getUrl().toString()));
+                        Log.d(TAG, String.format("feed content is: %s", feed.getContent()));
                     }
                 });
             }
