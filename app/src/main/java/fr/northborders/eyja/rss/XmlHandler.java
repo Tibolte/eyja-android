@@ -7,6 +7,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,11 @@ public class XmlHandler extends DefaultHandler {
 
         } else if (localName.equalsIgnoreCase("link")) {
 
-
+            try {
+                feedStr.setUrl(new URL(chars.toString()));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
 
         if (localName.equalsIgnoreCase("item")) {

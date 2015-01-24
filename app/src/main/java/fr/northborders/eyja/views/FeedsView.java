@@ -4,6 +4,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.Collections;
@@ -20,6 +23,8 @@ import fr.northborders.eyja.util.Utils;
  * Created by thibaultguegan on 12/01/15.
  */
 public class FeedsView extends ListView {
+
+    private static final String TAG = FeedsView.class.getSimpleName();
 
     private Context mContext;
     private List<RssFeed> mFeeds;
@@ -73,6 +78,14 @@ public class FeedsView extends ListView {
                 mAdapter = new FeedsListAdapter(mContext, mFeeds);
                 Collections.sort(mFeeds, new SortingOrder());
                 setAdapter(mAdapter);
+
+                setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        RssFeed feed = mFeeds.get(position);
+                        Log.d(TAG, String.format("feed link is: %s", feed.getUrl().toString()));
+                    }
+                });
             }
             Dialog.dismiss();
         }

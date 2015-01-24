@@ -12,8 +12,8 @@ import java.util.Map;
 import fr.northborders.eyja.appflow.Screen;
 import fr.northborders.eyja.appflow.ScreenContextFactory;
 
-import static fr.northborders.eyja.util.Preconditions.checkNotNull;
 import static fr.northborders.eyja.util.Preconditions.checkArgument;
+import static fr.northborders.eyja.util.Preconditions.checkNotNull;
 
 /**
  * Created by thibaultguegan on 11/01/15.

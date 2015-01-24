@@ -1,9 +1,7 @@
 package fr.northborders.eyja.util;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Build;
 import android.view.Display;
 import android.view.WindowManager;
 

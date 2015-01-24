@@ -1,33 +1,24 @@
 package fr.northborders.eyja;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.gson.Gson;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import flow.Backstack;
 import flow.Flow;
 import flow.HasParent;
-import flow.Layout;
-import fr.northborders.eyja.adapters.HomePagerAdapter;
 import fr.northborders.eyja.appflow.AppFlow;
 import fr.northborders.eyja.appflow.FlowBundler;
 import fr.northborders.eyja.appflow.Screen;
 import fr.northborders.eyja.screenswitcher.FrameScreenSwitcherView;
 import fr.northborders.eyja.util.GsonParcer;
-import fr.northborders.eyja.util.ObjectUtils;
 import fr.northborders.eyja.views.HomeView;
-import hugo.weaving.DebugLog;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-
-import static fr.northborders.eyja.util.Preconditions.checkNotNull;
 
 
 public class MainActivity extends ActionBarActivity implements Flow.Listener{
@@ -111,7 +102,6 @@ public class MainActivity extends ActionBarActivity implements Flow.Listener{
         }
     }
 
-    @DebugLog
     @Override
     public void go(Backstack nextBackstack, Flow.Direction direction, Flow.Callback callback) {
         Screen screen = (Screen) nextBackstack.current().getScreen();
