@@ -113,15 +113,15 @@ public class MainActivity extends ActionBarActivity{
     };
 
     private class RssFeedTask extends AsyncTask<String, Void, String> {
-        private ProgressDialog Dialog;
+        private ProgressDialog dialog;
         private boolean isRefreshing = false;
         String response = "";
 
         @Override
         protected void onPreExecute() {
-            Dialog = new ProgressDialog(MainActivity.this);
-            Dialog.setMessage(getString(R.string.chargement));
-            Dialog.show();
+            dialog = new ProgressDialog(MainActivity.this);
+            dialog.setMessage(getString(R.string.chargement));
+            dialog.show();
             isRefreshing = true;
             mSwipeRefreshLayout.setRefreshing(isRefreshing);
         }
@@ -154,7 +154,7 @@ public class MainActivity extends ActionBarActivity{
                     }
                 });
             }
-            Dialog.dismiss();
+            dialog.dismiss();
         }
 
         public boolean isRefreshing() {

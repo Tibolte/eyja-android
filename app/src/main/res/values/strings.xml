@@ -3,10 +3,11 @@
 
     <string name="app_name">Eyja</string>
     <string name="action_settings">Settings</string>
-
     <string name="chargement">Chargement...</string>
 
     <!-- feed sources -->
     <string name="telegramme_belle_ile">http://www.letelegramme.fr/morbihan/belle-ile-en-mer/rss.xml</string>
+    <string name="title_activity_cards">CardsActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

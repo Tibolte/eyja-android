@@ -5,4 +5,14 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="FeedItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">200dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@android:color/white</item>
+
+        <item name="android:elevation">@dimen/feed_item_elevation</item>
+    </style>
+
 </resources>
