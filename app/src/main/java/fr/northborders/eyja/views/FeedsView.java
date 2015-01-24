@@ -17,7 +17,6 @@ import fr.northborders.eyja.adapters.FeedsListAdapter;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
-import fr.northborders.eyja.util.Utils;
 
 /**
  * Created by thibaultguegan on 12/01/15.
@@ -33,8 +32,6 @@ public class FeedsView extends ListView {
     public FeedsView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
-
-        Utils.inject(context, this);
     }
 
     @Override

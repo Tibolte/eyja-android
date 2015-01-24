@@ -1,10 +1,7 @@
 package fr.northborders.eyja.rss;
 
-import android.util.Log;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
