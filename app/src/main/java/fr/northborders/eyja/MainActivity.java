@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.Collections;
@@ -30,20 +29,15 @@ public class MainActivity extends ActionBarActivity{
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @InjectView(R.id.swipe_container)
-    SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @InjectView(android.R.id.list)
-    ListView listView;
+    ListView mListView;
 
-    private Handler handler = new Handler();
+    private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
     private RssFeedTask mRssFeedTask;
-
-    private String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
-            "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-            "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-            "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-            "Android", "iPhone", "WindowsMobile" };
+    private FeedsListAdapter mAdapter;
 
     /**
      * MARK: Lifecycle methods
@@ -56,16 +50,11 @@ public class MainActivity extends ActionBarActivity{
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
-        listView.setAdapter(adapter);
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 // get the new data from you data source
-                // TODO : request data here
-                // our swipeRefreshLayout needs to be notified when the data is returned in order for it to stop the animation
-                handler.post(refreshing);
+                mHandler.post(refreshing);
             }
         });
 
@@ -108,14 +97,13 @@ public class MainActivity extends ActionBarActivity{
         @Override
         public void run() {
             try {
-                // TODO : isRefreshing should be attached to your data request status
                 if(isRefreshing()){
                     // re run the verification after 1 second
-                    handler.postDelayed(this, 1000);
+                    mHandler.postDelayed(this, 1000);
                 }else{
                     // stop the animation after the data is fully loaded
-                    swipeRefreshLayout.setRefreshing(false);
-                    // TODO : update your list with the new data
+                    mRssFeedTask = new RssFeedTask();
+                    mRssFeedTask.execute();
                 }
             }
             catch (Exception e) {
@@ -135,6 +123,7 @@ public class MainActivity extends ActionBarActivity{
             Dialog.setMessage(getString(R.string.chargement));
             Dialog.show();
             isRefreshing = true;
+            mSwipeRefreshLayout.setRefreshing(isRefreshing);
         }
 
         @Override
@@ -151,18 +140,19 @@ public class MainActivity extends ActionBarActivity{
         @Override
         protected void onPostExecute(String result) {
             if(mFeeds != null){
-                //mAdapter = new FeedsListAdapter(mContext, mFeeds);
+                mAdapter = new FeedsListAdapter(MainActivity.this, mFeeds);
                 Collections.sort(mFeeds, new SortingOrder());
                 isRefreshing = false;
-                //setAdapter(mAdapter);
+                mSwipeRefreshLayout.setRefreshing(isRefreshing);
+                mListView.setAdapter(mAdapter);
 
-                /*setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         RssFeed feed = mFeeds.get(position);
                         Log.d(TAG, String.format("feed content is: %s", feed.getContent()));
                     }
-                });*/
+                });
             }
             Dialog.dismiss();
         }
