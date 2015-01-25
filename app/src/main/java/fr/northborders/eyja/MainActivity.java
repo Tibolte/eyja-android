@@ -20,6 +20,8 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
 import com.melnykov.fab.FloatingActionButton;
@@ -60,6 +62,12 @@ public class MainActivity extends ActionBarActivity{
     @InjectView(R.id.spotlight)
     SpotlightView spotlightView;
 
+    @InjectView(R.id.description)
+    TextView txtDescription;
+
+    @InjectView(R.id.infoScroll)
+    ScrollView scrollInfo;
+
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
     private RssFeedTask mRssFeedTask;
@@ -76,6 +84,8 @@ public class MainActivity extends ActionBarActivity{
 
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+
+        txtDescription.setTypeface(EyjaApplication.getFontRegular());
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -154,6 +164,7 @@ public class MainActivity extends ActionBarActivity{
                 Utils.removeOnGlobalLayoutListenerCompat(spotlightView, this);
             }
         });
+
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
