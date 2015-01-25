@@ -3,6 +3,7 @@ package fr.northborders.eyja;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
@@ -21,6 +23,7 @@ import android.widget.ListView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
 import com.melnykov.fab.FloatingActionButton;
+import com.nineoldandroids.animation.ObjectAnimator;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +34,7 @@ import fr.northborders.eyja.adapters.FeedsListAdapter;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
+import fr.northborders.eyja.ui.SpotlightView;
 import fr.northborders.eyja.util.Utils;
 
 
@@ -53,10 +57,14 @@ public class MainActivity extends ActionBarActivity{
     @InjectView(R.id.infoView)
     FrameLayout infoView;
 
+    @InjectView(R.id.spotlight)
+    SpotlightView spotlightView;
+
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
     private RssFeedTask mRssFeedTask;
     private FeedsListAdapter mAdapter;
+    private float maskScale = 0;
 
     /**
      * MARK: Lifecycle methods
@@ -117,6 +125,35 @@ public class MainActivity extends ActionBarActivity{
                 showInformation(v);
             }
         });
+
+        infoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onGlobalLayout() {
+
+                if(infoView.getWidth() > 0) {
+
+                    Bitmap b = Utils.viewToBitmap(infoView, infoView.getWidth(), infoView.getHeight());
+                    spotlightView.createShaderB(b);
+                    maskScale = spotlightView.computeMaskScale(Math.max(spotlightView.getHeight(), spotlightView.getWidth()) * 4.0f);
+
+                    Utils.removeOnGlobalLayoutListenerCompat(infoView, this);
+                }
+
+            }
+        });
+
+        spotlightView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onGlobalLayout() {
+
+                spotlightView.setMaskX(mFloatingActionButton.getRight() - (mFloatingActionButton.getWidth() / 2));
+                spotlightView.setMaskY(mFloatingActionButton.getBottom() - (mFloatingActionButton.getHeight() / 2));
+
+                Utils.removeOnGlobalLayoutListenerCompat(spotlightView, this);
+            }
+        });
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
@@ -128,7 +165,7 @@ public class MainActivity extends ActionBarActivity{
         if(infoView.getVisibility() == View.VISIBLE) {
             showInformation(mFloatingActionButton);
         } else {
-          super.onBackPressed();
+            super.onBackPressed();
         }
     }
 
@@ -208,7 +245,11 @@ public class MainActivity extends ActionBarActivity{
             toggleInformationView(view);
         }
         else {
-
+            if(infoView.getVisibility() == View.INVISIBLE) {
+                createScaleAnimation(spotlightView);
+            } else {
+                createShrinkAnimation(spotlightView);
+            }
         }
     }
 
@@ -239,5 +280,64 @@ public class MainActivity extends ActionBarActivity{
         }
         reveal.setDuration(600);
         reveal.start();
+    }
+
+    private void createScaleAnimation(final SpotlightView spotlight) {
+        spotlight.setVisibility(View.VISIBLE);
+
+        com.nineoldandroids.animation.ObjectAnimator superScale = com.nineoldandroids.animation.ObjectAnimator.ofFloat(spotlight, "maskScale", maskScale);
+        superScale.addListener(new com.nineoldandroids.animation.Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(com.nineoldandroids.animation.Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(com.nineoldandroids.animation.Animator animation) {
+                infoView.setVisibility(View.VISIBLE);
+                spotlight.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(com.nineoldandroids.animation.Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(com.nineoldandroids.animation.Animator animation) {
+
+            }
+        });
+        superScale.start();
+    }
+
+    private void createShrinkAnimation(final SpotlightView spotlight) {
+        infoView.setVisibility(View.INVISIBLE);
+        spotlight.setVisibility(View.VISIBLE);
+        spotlight.setMaskScale(maskScale);
+
+        com.nineoldandroids.animation.ObjectAnimator superShrink = ObjectAnimator.ofFloat(spotlight, "maskScale", maskScale, 0.5f);
+        superShrink.addListener(new com.nineoldandroids.animation.Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(com.nineoldandroids.animation.Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(com.nineoldandroids.animation.Animator animation) {
+                spotlight.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(com.nineoldandroids.animation.Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(com.nineoldandroids.animation.Animator animation) {
+
+            }
+        });
+        superShrink.start();
     }
 }
