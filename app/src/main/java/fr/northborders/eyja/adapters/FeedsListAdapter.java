@@ -1,10 +1,6 @@
 package fr.northborders.eyja.adapters;
 
 import android.content.Context;
-import android.os.Build;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,14 +22,13 @@ import fr.northborders.eyja.model.RssFeed;
 public class FeedsListAdapter extends BaseAdapter {
 
     private Context mContext;
-    private LayoutInflater mInflater;
     private List<RssFeed> mFeeds;
-
+    private Picasso mPicasso;
 
     public FeedsListAdapter(Context context, List<RssFeed> feeds) {
         mContext = context;
-        mInflater = LayoutInflater.from(mContext);
         mFeeds = feeds;
+        mPicasso = Picasso.with(context);
     }
 
     @Override
@@ -56,7 +51,7 @@ public class FeedsListAdapter extends BaseAdapter {
 
         final ViewHolder viewHolder;
         if(convertView == null) {
-            convertView = mInflater.inflate(R.layout.list_item_feed, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.list_item_feed, parent, false);
             viewHolder = new ViewHolder();
 
             viewHolder.txtFeedText = (TextView) convertView.findViewById(R.id.txt_feed_title);
@@ -71,7 +66,10 @@ public class FeedsListAdapter extends BaseAdapter {
         viewHolder.txtFeedText.setText(mFeeds.get(position).getTitle());
         viewHolder.txtFeedText.setTypeface(EyjaApplication.getInstance().getFontRegular());
 
-        Picasso.with(mContext).load(mFeeds.get(position).getImgLink()).into(viewHolder.imgFeed);
+        mPicasso.with(mContext)
+                .load(mFeeds.get(position).getImgLink())
+                .tag(mContext)
+                .into(viewHolder.imgFeed);
 
         return convertView;
     }

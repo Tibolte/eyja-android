@@ -5,11 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
 import com.melnykov.fab.FloatingActionButton;
 import com.nineoldandroids.animation.ObjectAnimator;
+import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
 import java.util.List;
@@ -73,6 +74,7 @@ public class MainActivity extends ActionBarActivity{
     private RssFeedTask mRssFeedTask;
     private FeedsListAdapter mAdapter;
     private float maskScale = 0;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     /**
      * MARK: Lifecycle methods
@@ -116,7 +118,12 @@ public class MainActivity extends ActionBarActivity{
         mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+                final Picasso picasso = Picasso.with(getApplicationContext());
+                if (scrollState == SCROLL_STATE_IDLE || scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+                    picasso.resumeTag(getApplicationContext());
+                } else {
+                    picasso.pauseTag(getApplicationContext());
+                }
             }
 
             @Override
