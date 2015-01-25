@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/FeedItem">
-
-    <TextView android:id="@+id/txt_feed_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView android:id="@+id/txt_feed_updated_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
     <ImageView
         android:id="@+id/img_feed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/feed_item_height"
+        android:scaleType="centerCrop"/>
 
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/txt_feed_title"
+            style="@style/FeedTitle"/>
+
+     </LinearLayout>
+
+</RelativeLayout>

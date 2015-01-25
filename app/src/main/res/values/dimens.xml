@@ -5,4 +5,5 @@
 
     <dimen name="feed_item_elevation">4dp</dimen>
 
+    <dimen name="feed_item_height">200dp</dimen>
 </resources>

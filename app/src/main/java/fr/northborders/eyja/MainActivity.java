@@ -2,11 +2,13 @@ package fr.northborders.eyja;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +63,15 @@ public class MainActivity extends ActionBarActivity{
 
         mRssFeedTask = new RssFeedTask();
         mRssFeedTask.execute();
+
+        //we want the default ripple effect on lollipop
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            mListView.setCacheColorHint(android.R.color.transparent);
+            mListView.setSelector(android.R.color.transparent);
+        }
+        else {
+            mListView.setDrawSelectorOnTop(true);
+        }
 
         mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
