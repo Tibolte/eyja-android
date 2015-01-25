@@ -244,9 +244,9 @@ public class MainActivity extends ActionBarActivity{
                 Collections.sort(mFeeds, new SortingOrder());
                 isRefreshing = false;
                 mSwipeRefreshLayout.setRefreshing(isRefreshing);
-                //mListView.setAdapter(mAdapter);
+                mListView.setAdapter(mAdapter);
 
-                DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
+                /*DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
                 databaseHelper.flush();
                 for(RssFeed rssFeed: mFeeds) {
                     databaseHelper.insertFeed(rssFeed);
@@ -255,7 +255,7 @@ public class MainActivity extends ActionBarActivity{
                 Cursor cursor = databaseHelper.getWritableDatabase().query(DatabaseHelper.TABLE_FEED, new String[] {"COL_ID AS _id, *"},null, null, null, null, null);
                 FeedsCursorAdapter feedsCursorAdapter = new FeedsCursorAdapter(getApplicationContext(), cursor);
                 mListView.setAdapter(feedsCursorAdapter);
-                feedsCursorAdapter.notifyDataSetChanged();
+                feedsCursorAdapter.notifyDataSetChanged();*/
 
                 mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override

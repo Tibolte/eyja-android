@@ -33,6 +33,11 @@ public class FeedsCursorAdapter extends CursorAdapter {
         holder.txtFeedText = (TextView) view.findViewById(R.id.txt_feed_title);
         holder.imgFeed = (ImageView) view.findViewById(R.id.img_feed);
 
+        Picasso.with(context)
+                .load(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_IMG_LINK)))
+                .tag(context)
+                .into(holder.imgFeed);
+
         view.setTag(holder);
 
         return view;
