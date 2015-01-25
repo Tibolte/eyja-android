@@ -95,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(COL_URL, rssFeed.getUrl().toString());
 
             //image
-            String imageId = IMAGE_ID_PREFIX + Utils.generateViewId();
+/*            String imageId = IMAGE_ID_PREFIX + Utils.generateViewId();
             values.put(COL_IMAGE_ID, imageId);
             try {
                 Drawable drawable = Utils.drawableFromUrl(rssFeed.getImgLink());
@@ -108,7 +108,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } finally {
                 db.insert(TABLE_FEED, null, values);
                 db.close();
-            }
+            }*/
 
             return null;
         }
@@ -118,8 +118,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor cursor2 = db.query(TABLE_FEED,
-                new String[] {COL_ID, COL_IMAGE_ID, COL_IMAGE_BITMAP},COL_TITLE
-                        +" LIKE '"+rssFeed.getTitle()+"%'", null, null, null, null);
+                new String[] {COL_ID, COL_IMAGE_ID, COL_IMAGE_BITMAP},COL_URL
+                        +" LIKE '"+rssFeed.getUrl().toString()+"%'", null, null, null, null);
         ImageHelper imageHelper = new ImageHelper();
 
         if (cursor2.moveToFirst()) {
@@ -133,37 +133,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return imageHelper;
 
-    }
-
-    public void insetImage(Drawable dbDrawable, String imageId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_IMAGE_ID, imageId);
-        Bitmap bitmap = ((BitmapDrawable)dbDrawable).getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        values.put(COL_IMAGE_BITMAP, stream.toByteArray());
-        db.insert(TABLE_FEED, null, values);
-        db.close();
-    }
-
-    public ImageHelper getImage(String imageId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        Cursor cursor2 = db.query(TABLE_FEED,
-                new String[] {COL_ID, COL_IMAGE_ID, COL_IMAGE_BITMAP},COL_IMAGE_ID
-                        +" LIKE '"+imageId+"%'", null, null, null, null);
-        ImageHelper imageHelper = new ImageHelper();
-
-        if (cursor2.moveToFirst()) {
-            do {
-                imageHelper.setImageId(cursor2.getString(1));
-                imageHelper.setImageByteArray(cursor2.getBlob(2));
-            } while (cursor2.moveToNext());
-        }
-
-        cursor2.close();
-        db.close();
-        return imageHelper;
     }
 }

@@ -14,7 +14,10 @@ import java.util.List;
 
 import fr.northborders.eyja.EyjaApplication;
 import fr.northborders.eyja.R;
+import fr.northborders.eyja.database.DatabaseHelper;
+import fr.northborders.eyja.database.ImageHelper;
 import fr.northborders.eyja.model.RssFeed;
+import fr.northborders.eyja.util.Utils;
 
 /**
  * Created by thibaultguegan on 13/01/15.
@@ -47,7 +50,7 @@ public class FeedsListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
         final ViewHolder viewHolder;
         if(convertView == null) {
