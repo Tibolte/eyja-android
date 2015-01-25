@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Material colors-->
+    <color name="primary">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="secondary_text">#727272</color>
+    <color name="accent">#536DFE</color>
+    <color name="primary_text">#212121</color>
+    <color name="text_icons">#FFFFFF</color>
+    <color name="divider_color">#B6B6B6</color>
+
+    <integer-array name="colors">
+        <item>@color/primary_dark</item>
+        <item>@color/primary_dark</item>
+        <item>@color/primary_dark</item>
+        <item>@color/primary_dark</item>
+        <item>@color/primary_dark</item>
+    </integer-array>
 
 </resources>

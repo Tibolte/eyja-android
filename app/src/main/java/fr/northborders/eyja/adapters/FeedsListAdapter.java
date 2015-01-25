@@ -69,7 +69,7 @@ public class FeedsListAdapter extends BaseAdapter {
         }
 
         viewHolder.txtFeedText.setText(mFeeds.get(position).getTitle());
-        viewHolder.txtFeedText.setTypeface(EyjaApplication.getInstance().getFontBold());
+        viewHolder.txtFeedText.setTypeface(EyjaApplication.getInstance().getFontRegular());
 
         Picasso.with(mContext).load(mFeeds.get(position).getImgLink()).into(viewHolder.imgFeed);
 

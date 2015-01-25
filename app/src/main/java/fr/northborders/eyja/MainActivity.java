@@ -1,6 +1,5 @@
 package fr.northborders.eyja;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,13 +7,13 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
+import com.melnykov.fab.FloatingActionButton;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +35,12 @@ public class MainActivity extends ActionBarActivity{
 
     @InjectView(android.R.id.list)
     ListView mListView;
+
+    @InjectView(R.id.btn_info)
+    FloatingActionButton mFloatingActionButton;
+
+    @InjectView(R.id.progressBarCircularIndeterminate)
+    ProgressBarCircularIndeterminate progressBar;
 
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
@@ -60,6 +65,12 @@ public class MainActivity extends ActionBarActivity{
                 mHandler.post(refreshing);
             }
         });
+
+        mSwipeRefreshLayout.setColorSchemeResources(
+                R.color.primary,
+                R.color.primary_dark,
+                R.color.accent
+                );
 
         mRssFeedTask = new RssFeedTask();
         mRssFeedTask.execute();
@@ -87,32 +98,12 @@ public class MainActivity extends ActionBarActivity{
                 mSwipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
             }
         });
+
+        mFloatingActionButton.attachToListView(mListView);
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private boolean isRefreshing() {
@@ -140,15 +131,12 @@ public class MainActivity extends ActionBarActivity{
     };
 
     private class RssFeedTask extends AsyncTask<String, Void, String> {
-        private ProgressDialog dialog;
         private boolean isRefreshing = false;
         String response = "";
 
         @Override
         protected void onPreExecute() {
-            dialog = new ProgressDialog(MainActivity.this);
-            dialog.setMessage(getString(R.string.chargement));
-            dialog.show();
+            progressBar.setVisibility(View.VISIBLE);
             isRefreshing = true;
             mSwipeRefreshLayout.setRefreshing(isRefreshing);
         }
@@ -181,7 +169,7 @@ public class MainActivity extends ActionBarActivity{
                     }
                 });
             }
-            dialog.dismiss();
+            progressBar.setVisibility(View.GONE);
         }
 
         public boolean isRefreshing() {

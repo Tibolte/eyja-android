@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material colors-->
+    <color name="theme_default_primary">#2196F3</color>
+    <color name="theme_default_primary_dark">#1976D2</color>
+    <color name="theme_default_primary_light">#BBDEFB</color>
+    <color name="theme_default_secondary_text">#727272</color>
+    <color name="theme_default_accent">#536DFE</color>
+    <color name="theme_default_primary_text">#212121</color>
+    <color name="theme_default_text_icons">#FFFFFF</color>
+    <color name="theme_default_divider_color">#B6B6B6</color>
+
+    <color name="theme_background">#f2f2f2</color>
+
+    <declare-styleable name="BaseAppTheme">
+        <attr name="actionBarIconColor" format="color" />
+    </declare-styleable>
+
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
+    <style name="MainTheme" parent="BaseAppTheme">
+        <item name="actionBarStyle">@style/MainActionBar</item>
+    </style>
+
+    <style name="MainActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/MainThemeActionBarTitleTextStyle</item>
+        <item name="actionMenuTextColor">@style/MainThemeActionBarMenuText</item>
+        <item name="actionMenuTextAppearance">@style/MainThemeActionBarMenuText</item>
+    </style>
+
+    <style name="MainThemeActionBarTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/theme_default_text_icons</item>
+    </style>
+
+    <style name="MainThemeActionBarMenuText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <item name="android:textColor">@color/theme_default_text_icons</item>
+    </style>
+
+</resources>
