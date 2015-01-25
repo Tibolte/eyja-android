@@ -19,6 +19,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -34,6 +35,8 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import fr.northborders.eyja.adapters.FeedsListAdapter;
+import fr.northborders.eyja.database.DatabaseHelper;
+import fr.northborders.eyja.database.ImageHelper;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
@@ -242,11 +245,17 @@ public class MainActivity extends ActionBarActivity{
                 mSwipeRefreshLayout.setRefreshing(isRefreshing);
                 mListView.setAdapter(mAdapter);
 
+                DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
+                databaseHelper.flush();
+                databaseHelper.close();
+                for(RssFeed rssFeed: mFeeds) {
+                    databaseHelper.insertFeed(rssFeed);
+                }
+
                 mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        RssFeed feed = mFeeds.get(position);
-                        Log.d(TAG, String.format("feed content is: %s", feed.getContent()));
+                        //do stuff
                     }
                 });
             }

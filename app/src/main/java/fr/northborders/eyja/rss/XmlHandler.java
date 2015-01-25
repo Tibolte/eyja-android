@@ -115,6 +115,7 @@ public class XmlHandler extends DefaultHandler {
             xr.setContentHandler(this);
             xr.parse(new InputSource(url.openStream()));
         } catch (IOException e) {
+
         } catch (SAXException e) {
 
         } catch (ParserConfigurationException e) {
