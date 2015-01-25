@@ -65,10 +65,10 @@ public class FeedsListAdapter extends BaseAdapter {
         viewHolder.txtFeedText.setText(mFeeds.get(position).getTitle());
         viewHolder.txtFeedText.setTypeface(EyjaApplication.getInstance().getFontRegular());
 
-        mPicasso.with(mContext)
-                .load(mFeeds.get(position).getImgLink())
-                .tag(mContext)
-                .into(viewHolder.imgFeed);
+        mPicasso
+            .load(mFeeds.get(position).getImgLink())
+            .tag(mContext)
+            .into(viewHolder.imgFeed);
 
         return convertView;
     }

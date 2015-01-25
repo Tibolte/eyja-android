@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -243,6 +244,7 @@ public class MainActivity extends ActionBarActivity{
                 mAdapter = new FeedsListAdapter(MainActivity.this, mFeeds);
                 Collections.sort(mFeeds, new SortingOrder());
                 isRefreshing = false;
+
                 mSwipeRefreshLayout.setRefreshing(isRefreshing);
                 mListView.setAdapter(mAdapter);
 
