@@ -1,5 +1,8 @@
 package fr.northborders.eyja;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,8 +11,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
@@ -24,6 +31,7 @@ import fr.northborders.eyja.adapters.FeedsListAdapter;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
+import fr.northborders.eyja.util.Utils;
 
 
 public class MainActivity extends ActionBarActivity{
@@ -41,6 +49,9 @@ public class MainActivity extends ActionBarActivity{
 
     @InjectView(R.id.progressBarCircularIndeterminate)
     ProgressBarCircularIndeterminate progressBar;
+
+    @InjectView(R.id.infoView)
+    FrameLayout infoView;
 
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
@@ -76,7 +87,7 @@ public class MainActivity extends ActionBarActivity{
         mRssFeedTask.execute();
 
         //we want the default ripple effect on lollipop
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (!Utils.hasLollipop()) {
             mListView.setCacheColorHint(android.R.color.transparent);
             mListView.setSelector(android.R.color.transparent);
         }
@@ -100,10 +111,25 @@ public class MainActivity extends ActionBarActivity{
         });
 
         mFloatingActionButton.attachToListView(mListView);
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showInformation(v);
+            }
+        });
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(infoView.getVisibility() == View.VISIBLE) {
+            showInformation(mFloatingActionButton);
+        } else {
+          super.onBackPressed();
+        }
     }
 
     private boolean isRefreshing() {
@@ -175,5 +201,43 @@ public class MainActivity extends ActionBarActivity{
         public boolean isRefreshing() {
             return isRefreshing;
         }
+    }
+
+    public void showInformation(View view) {
+        if (Utils.hasLollipop()) {
+            toggleInformationView(view);
+        }
+        else {
+
+        }
+    }
+
+    @TargetApi(21)
+    private void toggleInformationView(View view) {
+        final View infoContainer = infoView;
+
+        int cx = (view.getLeft() + view.getRight()) / 2;
+        int cy = (view.getTop() + view.getBottom()) / 2;
+        float radius = Math.max(infoContainer.getWidth(), infoContainer.getHeight()) * 2.0f;
+
+        Animator reveal;
+        if (infoContainer.getVisibility() == View.INVISIBLE) {
+            infoContainer.setVisibility(View.VISIBLE);
+            reveal = ViewAnimationUtils.createCircularReveal(
+                    infoContainer, cx, cy, 0, radius);
+            reveal.setInterpolator(new AccelerateInterpolator(2.0f));
+        } else {
+            reveal = ViewAnimationUtils.createCircularReveal(
+                    infoContainer, cx, cy, radius, 0);
+            reveal.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    infoContainer.setVisibility(View.INVISIBLE);
+                }
+            });
+            reveal.setInterpolator(new DecelerateInterpolator(2.0f));
+        }
+        reveal.setDuration(600);
+        reveal.start();
     }
 }
