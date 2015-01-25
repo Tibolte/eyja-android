@@ -94,6 +94,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(COL_PUB_DATE, rssFeed.getPubDate());
             values.put(COL_URL, rssFeed.getUrl().toString());
 
+            db.insert(TABLE_FEED, null, values);
+            db.close();
+
             //image
 /*            String imageId = IMAGE_ID_PREFIX + Utils.generateViewId();
             values.put(COL_IMAGE_ID, imageId);
