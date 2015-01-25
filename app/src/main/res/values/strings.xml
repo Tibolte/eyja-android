@@ -7,7 +7,5 @@
 
     <!-- feed sources -->
     <string name="telegramme_belle_ile">http://www.letelegramme.fr/morbihan/belle-ile-en-mer/rss.xml</string>
-    <string name="title_activity_cards">CardsActivity</string>
-    <string name="hello_world">Hello world!</string>
 
 </resources>

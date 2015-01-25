@@ -19,10 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".CardsActivity"
-            android:label="@string/title_activity_cards" >
-        </activity>
     </application>
 
 </manifest>
