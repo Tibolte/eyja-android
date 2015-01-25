@@ -25,19 +25,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = DatabaseHelper.class.getSimpleName();
     private static final int databaseVersion = 1;
     private static final String databaseName = "dbFeeds";
-    private static final String TABLE_FEED = "FeedTable";
-
-    private static final String IMAGE_ID_PREFIX = "image_";
+    public static final String TABLE_FEED = "FeedTable";
 
     //feed table column names
-    private static final String COL_ID = "col_id";
-    private static final String COL_TITLE = "col_title";
-    private static final String COL_DESCRIPTION = "col_description";
-    private static final String COL_IMG_LINK = "col_img_link";
-    private static final String COL_PUB_DATE = "col_pub_date";
-    private static final String COL_URL = "col_url";
-    private static final String COL_IMAGE_ID = "col_image_id";
-    private static final String COL_IMAGE_BITMAP = "col_image_bitmap";
+    public static final String COL_ID = "col_id";
+    public static final String COL_TITLE = "col_title";
+    public static final String COL_DESCRIPTION = "col_description";
+    public static final String COL_IMG_LINK = "col_img_link";
+    public static final String COL_PUB_DATE = "col_pub_date";
+    public static final String COL_URL = "col_url";
+    public static final String COL_IMAGE_ID = "col_image_id";
+    public static final String COL_IMAGE_BITMAP = "col_image_bitmap";
 
     public DatabaseHelper(Context context) {
         super(context, databaseName, null, databaseVersion);
@@ -72,69 +70,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void insertFeed(RssFeed rssFeed) {
-        InsertFeedTask insertFeedTask = new InsertFeedTask(rssFeed);
-        insertFeedTask.execute();
-    }
 
-    private class InsertFeedTask extends AsyncTask<Void, Void, Void> {
+        SQLiteDatabase db = DatabaseHelper.this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_TITLE, rssFeed.getTitle());
+        values.put(COL_DESCRIPTION, rssFeed.getDescription());
+        values.put(COL_IMG_LINK, rssFeed.getImgLink());
+        values.put(COL_PUB_DATE, rssFeed.getPubDate());
+        values.put(COL_URL, rssFeed.getUrl().toString());
 
-        private RssFeed rssFeed;
-
-        public InsertFeedTask(RssFeed rssFeed) {
-            this.rssFeed = rssFeed;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            SQLiteDatabase db = DatabaseHelper.this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(COL_TITLE, rssFeed.getTitle());
-            values.put(COL_DESCRIPTION, rssFeed.getDescription());
-            values.put(COL_IMG_LINK, rssFeed.getImgLink());
-            values.put(COL_PUB_DATE, rssFeed.getPubDate());
-            values.put(COL_URL, rssFeed.getUrl().toString());
-
-            db.insert(TABLE_FEED, null, values);
-            db.close();
-
-            //image
-/*            String imageId = IMAGE_ID_PREFIX + Utils.generateViewId();
-            values.put(COL_IMAGE_ID, imageId);
-            try {
-                Drawable drawable = Utils.drawableFromUrl(rssFeed.getImgLink());
-                Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                values.put(COL_IMAGE_BITMAP, stream.toByteArray());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                db.insert(TABLE_FEED, null, values);
-                db.close();
-            }*/
-
-            return null;
-        }
-    }
-
-    public ImageHelper getFeedImage(RssFeed rssFeed) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        Cursor cursor2 = db.query(TABLE_FEED,
-                new String[] {COL_ID, COL_IMAGE_ID, COL_IMAGE_BITMAP},COL_URL
-                        +" LIKE '"+rssFeed.getUrl().toString()+"%'", null, null, null, null);
-        ImageHelper imageHelper = new ImageHelper();
-
-        if (cursor2.moveToFirst()) {
-            do {
-                imageHelper.setImageId(cursor2.getString(1));
-                imageHelper.setImageByteArray(cursor2.getBlob(2));
-            } while (cursor2.moveToNext());
-        }
-
-        cursor2.close();
-        db.close();
-        return imageHelper;
+        db.insert(TABLE_FEED, null, values);
 
     }
+
 }

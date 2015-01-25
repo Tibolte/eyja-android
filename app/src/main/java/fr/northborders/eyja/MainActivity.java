@@ -3,6 +3,7 @@ package fr.northborders.eyja;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,9 +35,9 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import fr.northborders.eyja.adapters.FeedsCursorAdapter;
 import fr.northborders.eyja.adapters.FeedsListAdapter;
 import fr.northborders.eyja.database.DatabaseHelper;
-import fr.northborders.eyja.database.ImageHelper;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
@@ -243,14 +244,18 @@ public class MainActivity extends ActionBarActivity{
                 Collections.sort(mFeeds, new SortingOrder());
                 isRefreshing = false;
                 mSwipeRefreshLayout.setRefreshing(isRefreshing);
-                mListView.setAdapter(mAdapter);
+                //mListView.setAdapter(mAdapter);
 
                 DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
                 databaseHelper.flush();
-                databaseHelper.close();
                 for(RssFeed rssFeed: mFeeds) {
                     databaseHelper.insertFeed(rssFeed);
                 }
+
+                Cursor cursor = databaseHelper.getWritableDatabase().query(DatabaseHelper.TABLE_FEED, new String[] {"COL_ID AS _id, *"},null, null, null, null, null);
+                FeedsCursorAdapter feedsCursorAdapter = new FeedsCursorAdapter(getApplicationContext(), cursor);
+                mListView.setAdapter(feedsCursorAdapter);
+                feedsCursorAdapter.notifyDataSetChanged();
 
                 mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override

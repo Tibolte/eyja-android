@@ -100,8 +100,4 @@ public class Utils {
         }
     }
 
-    public static void setUpImage(ImageView image, byte[] bytes) {
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        image.setImageBitmap(bitmap);
-    }
 }
