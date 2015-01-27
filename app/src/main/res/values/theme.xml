@@ -20,6 +20,9 @@
         <item name="colorPrimaryDark">@color/theme_default_primary_dark</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="android:colorControlHighlight">@color/theme_default_accent_light</item>
+        <item name="android:navigationBarColor">?android:colorPrimaryDark</item>
+        <item name="android:statusBarColor">?android:colorPrimaryDark</item>
     </style>
 
 </resources>

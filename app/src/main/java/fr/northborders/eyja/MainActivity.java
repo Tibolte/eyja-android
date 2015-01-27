@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
@@ -65,15 +66,6 @@ public class MainActivity extends BaseActivity{
 
         mRssFeedTask = new RssFeedTask();
         mRssFeedTask.execute();
-
-        //we want the default ripple effect on lollipop
-        /*if (!Utils.hasLollipop()) {
-            mListView.setCacheColorHint(android.R.color.transparent);
-            mListView.setSelector(android.R.color.transparent);
-        }
-        else {
-            mListView.setDrawSelectorOnTop(true);
-        }*/
 
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -157,6 +149,13 @@ public class MainActivity extends BaseActivity{
                 mSwipeRefreshLayout.setRefreshing(isRefreshing);
                 GridAdpater adpater = new GridAdpater(mFeeds);
                 gridView.setAdapter(adpater);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String url = mFeeds.get(position).getImgLink();
+                        DetailActivity.launch(MainActivity.this, view.findViewById(R.id.image), url, mFeeds.get(position).getTitle(), mFeeds.get(position).getDescription());
+                    }
+                });
             }
             progressBar.setVisibility(View.GONE);
         }
