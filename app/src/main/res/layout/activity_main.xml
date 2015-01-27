@@ -1,12 +1,12 @@
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
 
         <android.support.v4.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,65 +14,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ListView
-                android:id="@id/android:list"
+            <GridView
+                android:id="@+id/gridView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:dividerHeight="0dp"/>
+                android:layout_below="@id/toolbar"
+                android:padding="4dp"
+                android:clipToPadding="false"
+                android:columnWidth="@dimen/item_width"
+                android:numColumns="auto_fit"
+                android:horizontalSpacing="4dp"
+                android:verticalSpacing="4dp"
+                android:stretchMode="columnWidth"/>
 
         </android.support.v4.widget.SwipeRefreshLayout>
-
-        <FrameLayout
-            android:id="@+id/infoView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"
-            android:background="@color/primary_dark">
-
-            <ScrollView
-                android:id="@+id/infoScroll"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/description"
-                    android:textColor="@color/text_icons"
-                    android:layout_gravity="right"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginRight="24dp"
-                    android:layout_marginTop="12dp"
-                    android:paddingBottom="24dp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:text="@string/lorem"
-                    android:textSize="20sp" />
-
-            </ScrollView>
-
-        </FrameLayout>
-
-        <fr.northborders.eyja.ui.SpotlightView
-            android:id="@+id/spotlight"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"
-
-            fab:mask="@drawable/spot_mask"
-            fab:target="@id/infoView" />
-
-        <com.melnykov.fab.FloatingActionButton
-            android:id="@+id/btn_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_margin="16dp"
-            android:src="@drawable/btn_info"
-            fab:fab_colorNormal="@color/accent"
-            fab:fab_colorPressed="@color/accent"
-            fab:fab_colorRipple="@color/primary_dark"/>
-
-    </FrameLayout>
 
     <com.gc.materialdesign.views.ProgressBarCircularIndeterminate
         android:id="@+id/progressBarCircularIndeterminate"
@@ -82,4 +37,4 @@
         android:visibility="gone"
         android:background="@color/primary" />
 
-</RelativeLayout>
+</LinearLayout>

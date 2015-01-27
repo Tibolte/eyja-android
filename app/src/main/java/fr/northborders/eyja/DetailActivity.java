@@ -36,9 +36,6 @@ public class DetailActivity extends Activity {
         setContentView(R.layout.activity_detail);
         ButterKnife.inject(this);
 
-        Bitmap photo = setupPhoto(getIntent().getIntExtra("photo", -1));
-        colorize(photo);
-
         setupText();
         if(Utils.hasLollipop()) {
             applySystemWindowsBottomInset(R.id.container);
@@ -50,12 +47,6 @@ public class DetailActivity extends Activity {
     @Override
     public void onBackPressed() {
         finish();
-    }
-
-    private Bitmap setupPhoto(int resource) {
-        Bitmap bitmap = MainActivity.sPhotoCache.get(resource);
-        ((ImageView) findViewById(R.id.photo)).setImageBitmap(bitmap);
-        return bitmap;
     }
 
     private void colorize(Bitmap photo) {
