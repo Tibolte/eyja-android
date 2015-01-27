@@ -3,16 +3,17 @@ package fr.northborders.eyja;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.database.Cursor;
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewTreeObserver;
@@ -31,24 +32,31 @@ import com.melnykov.fab.FloatingActionButton;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.squareup.picasso.Picasso;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import fr.northborders.eyja.adapters.FeedsCursorAdapter;
 import fr.northborders.eyja.adapters.FeedsListAdapter;
-import fr.northborders.eyja.database.DatabaseHelper;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
 import fr.northborders.eyja.ui.SpotlightView;
+import fr.northborders.eyja.util.Keys;
 import fr.northborders.eyja.util.Utils;
 
 
 public class MainActivity extends ActionBarActivity{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static SparseArray<Bitmap> sPhotoCache = new SparseArray<Bitmap>(4);
 
     @InjectView(R.id.swipe_container)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -261,8 +269,16 @@ public class MainActivity extends ActionBarActivity{
 
                 mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        //do stuff
+                    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                        try {
+                            getBitmapFromUrl(mFeeds.get(position), view);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 });
             }
@@ -272,6 +288,44 @@ public class MainActivity extends ActionBarActivity{
         public boolean isRefreshing() {
             return isRefreshing;
         }
+    }
+
+    private class BitmapCallable implements Callable<Bitmap> {
+
+        String url;
+
+        public BitmapCallable(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public Bitmap call() throws Exception {
+            return BitmapFactory.decodeStream(new URL(url).openConnection().getInputStream());
+        }
+    }
+
+    public void getBitmapFromUrl(RssFeed feed, View view) throws InterruptedException, ExecutionException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        BitmapCallable bitmapCallable = new BitmapCallable(feed.getImgLink());
+        Future<Bitmap> future = executor.submit(bitmapCallable);
+        executor.shutdown();
+        Bitmap bitmap = future.get();
+
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+        intent.putExtra(Keys.KEY_TITLE, feed.getTitle());
+        intent.putExtra(Keys.KEY_DESCRIPTION, feed.getDescription());
+
+        ImageView hero = (ImageView) ((View) view.getParent()).findViewById(R.id.img_feed);
+
+        sPhotoCache.put(intent.getIntExtra(Keys.KEY_PHOTO, -1), bitmap);
+
+        if(Utils.hasLollipop()) {
+            ActivityOptions options =
+                    ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, hero, "photo_hero");
+            startActivity(intent, options.toBundle());
+        }
+
     }
 
     public void showInformation(View view) {

@@ -2,19 +2,10 @@ package fr.northborders.eyja.database;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import fr.northborders.eyja.model.RssFeed;
-import fr.northborders.eyja.util.Utils;
 
 /**
  * Created by thibaultguegan on 25/01/15.

@@ -13,8 +13,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-import com.melnykov.fab.FloatingActionButton;
-
 import fr.northborders.eyja.R;
 import fr.northborders.eyja.util.Utils;
 

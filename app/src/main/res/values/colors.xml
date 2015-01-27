@@ -10,12 +10,13 @@
     <color name="text_icons">#FFFFFF</color>
     <color name="divider_color">#B6B6B6</color>
 
-    <integer-array name="colors">
-        <item>@color/primary_dark</item>
-        <item>@color/primary_dark</item>
-        <item>@color/primary_dark</item>
-        <item>@color/primary_dark</item>
-        <item>@color/primary_dark</item>
-    </integer-array>
+    <color name="photo_tint">#7f101010</color>
+
+    <color name="default_dark_muted">#44424f</color>
+    <color name="default_dark_vibrant">#7b400a</color>
+    <color name="default_vibrant">#f3aa66</color>
+    <color name="default_light_muted">#c9be9c</color>
+    <color name="default_light_vibrant">#fcda99</color>
+    <color name="default_muted">#7f7c8a</color>
 
 </resources>

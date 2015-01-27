@@ -17,18 +17,13 @@
         <attr name="actionBarIconColor" format="color" />
     </declare-styleable>
 
-    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="colorControlHighlight">@color/theme_default_accent_light</item>
-        <item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="actionBarIconColor">#fff</item>
         <item name="android:windowBackground">@color/theme_background</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowAllowEnterTransitionOverlap">true</item>
-        <item name="android:windowAllowReturnTransitionOverlap">true</item>
     </style>
 
     <style name="MainTheme" parent="BaseAppTheme">
@@ -47,6 +42,15 @@
 
     <style name="MainThemeActionBarMenuText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
         <item name="android:textColor">@color/theme_default_text_icons</item>
+    </style>
+
+    <!-- Detail -->
+    <style name="DetailTheme" parent="MainTheme">
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="DetailActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="android:background">@null</item>
     </style>
 
 </resources>
