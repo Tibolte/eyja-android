@@ -1,13 +1,14 @@
 package fr.northborders.eyja;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.os.Build;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.graphics.Palette;
-import android.transition.Transition;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowInsets;
@@ -15,47 +16,56 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import fr.northborders.eyja.ui.TransitionAdapter;
 import fr.northborders.eyja.util.Keys;
-import fr.northborders.eyja.util.Utils;
 
 /**
  * Created by thibaultguegan on 26/01/15.
  */
-public class DetailActivity extends Activity {
+public class DetailActivity extends BaseActivity {
+
+    @InjectView(R.id.title)
+    TextView txtTitle;
+
+    @InjectView(R.id.description)
+    TextView txtDescription;
 
     @InjectView(R.id.container)
     LinearLayout container;
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         ButterKnife.inject(this);
 
-        Bitmap photo = setupPhoto(getIntent().getIntExtra("photo", -1));
-        colorize(photo);
+        final ImageView image = (ImageView) findViewById(R.id.image);
+        ViewCompat.setTransitionName(image, Keys.KEY_PHOTO);
+        Picasso.with(this)
+                .load(getIntent().getStringExtra(Keys.KEY_PHOTO))
+                .into(image, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
+                        colorize(bitmap);
+                    }
 
-        setupText();
-        if(Utils.hasLollipop()) {
-            applySystemWindowsBottomInset(R.id.container);
-            addWindowListener();
-        }
+                    @Override
+                    public void onError() {
 
+                    }
+                });
+
+        txtTitle.setText(getIntent().getStringExtra(Keys.KEY_TITLE));
+        txtDescription.setText(getIntent().getStringExtra(Keys.KEY_DESCRIPTION));
     }
 
     @Override
-    public void onBackPressed() {
-        finish();
-    }
-
-    private Bitmap setupPhoto(int resource) {
-        Bitmap bitmap = MainActivity.sPhotoCache.get(resource);
-        ((ImageView) findViewById(R.id.photo)).setImageBitmap(bitmap);
-        return bitmap;
+    protected int getLayoutResource() {
+        return R.layout.activity_detail;
     }
 
     private void colorize(Bitmap photo) {
@@ -63,11 +73,10 @@ public class DetailActivity extends Activity {
         applyPalette(palette);
     }
 
-    private void applyPalette(Palette palette) {
+    public void applyPalette(Palette palette) {
         Resources res = getResources();
 
         container.setBackgroundColor(palette.getDarkMutedColor(res.getColor(R.color.default_dark_muted)));
-        findViewById(R.id.content).setBackgroundColor(palette.getDarkMutedColor(res.getColor(R.color.default_dark_muted)));
 
         TextView titleView = (TextView) findViewById(R.id.title);
         titleView.setTextColor(palette.getVibrantColor(res.getColor(R.color.default_vibrant)));
@@ -76,40 +85,14 @@ public class DetailActivity extends Activity {
         descriptionView.setTextColor(palette.getLightVibrantColor(res.getColor(R.color.default_light_vibrant)));
     }
 
-    private void setupText() {
-        TextView titleView = (TextView) findViewById(R.id.title);
-        titleView.setText(getIntent().getStringExtra(Keys.KEY_TITLE));
-
-        TextView descriptionView = (TextView) findViewById(R.id.description);
-        descriptionView.setText(getIntent().getStringExtra(Keys.KEY_DESCRIPTION));
+    public static void launch(BaseActivity activity, View transitionView, String url, String title, String description) {
+        ActivityOptionsCompat options =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        activity, transitionView, Keys.KEY_PHOTO);
+        Intent intent = new Intent(activity, DetailActivity.class);
+        intent.putExtra(Keys.KEY_PHOTO, url);
+        intent.putExtra(Keys.KEY_TITLE, title);
+        intent.putExtra(Keys.KEY_DESCRIPTION, description);
+        ActivityCompat.startActivity(activity, intent, options.toBundle());
     }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void addWindowListener() {
-        getWindow().getEnterTransition().addListener(new TransitionAdapter() {
-            @Override
-            public void onTransitionEnd(Transition transition) {
-                getWindow().getEnterTransition().removeListener(this);
-            }
-        });
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
-    private void applySystemWindowsBottomInset(int container) {
-        View containerView = findViewById(container);
-        containerView.setFitsSystemWindows(true);
-        containerView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                if (metrics.widthPixels < metrics.heightPixels) {
-                    view.setPadding(0, 0, 0, windowInsets.getSystemWindowInsetBottom());
-                } else {
-                    view.setPadding(0, 0, windowInsets.getSystemWindowInsetRight(), 0);
-                }
-                return windowInsets.consumeSystemWindowInsets();
-            }
-        });
-    }
-
 }

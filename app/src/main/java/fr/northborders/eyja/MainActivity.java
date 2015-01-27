@@ -1,93 +1,43 @@
 package fr.northborders.eyja;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.app.ActivityOptions;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.RecyclerView;
-import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.GridView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
-import com.melnykov.fab.FloatingActionButton;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.squareup.picasso.Picasso;
 
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import fr.northborders.eyja.adapters.FeedsListAdapter;
+import fr.northborders.eyja.adapters.GridAdpater;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
-import fr.northborders.eyja.ui.SpotlightView;
-import fr.northborders.eyja.util.Keys;
-import fr.northborders.eyja.util.Utils;
 
 
-public class MainActivity extends ActionBarActivity{
+public class MainActivity extends BaseActivity{
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    public static SparseArray<Bitmap> sPhotoCache = new SparseArray<Bitmap>(4);
 
     @InjectView(R.id.swipe_container)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    @InjectView(android.R.id.list)
-    ListView mListView;
-
-    @InjectView(R.id.btn_info)
-    FloatingActionButton mFloatingActionButton;
-
     @InjectView(R.id.progressBarCircularIndeterminate)
     ProgressBarCircularIndeterminate progressBar;
 
-    @InjectView(R.id.infoView)
-    FrameLayout infoView;
-
-    @InjectView(R.id.spotlight)
-    SpotlightView spotlightView;
-
-    @InjectView(R.id.description)
-    TextView txtDescription;
-
-    @InjectView(R.id.infoScroll)
-    ScrollView scrollInfo;
+    @InjectView(R.id.gridView)
+    GridView gridView;
 
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
     private RssFeedTask mRssFeedTask;
-    private FeedsListAdapter mAdapter;
-    private float maskScale = 0;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     /**
      * MARK: Lifecycle methods
@@ -99,8 +49,6 @@ public class MainActivity extends ActionBarActivity{
 
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
-
-        txtDescription.setTypeface(EyjaApplication.getFontRegular());
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -119,85 +67,31 @@ public class MainActivity extends ActionBarActivity{
         mRssFeedTask = new RssFeedTask();
         mRssFeedTask.execute();
 
-        //we want the default ripple effect on lollipop
-        if (!Utils.hasLollipop()) {
-            mListView.setCacheColorHint(android.R.color.transparent);
-            mListView.setSelector(android.R.color.transparent);
-        }
-        else {
-            mListView.setDrawSelectorOnTop(true);
-        }
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
-        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                final Picasso picasso = Picasso.with(getApplicationContext());
-                if (scrollState == SCROLL_STATE_IDLE || scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-                    picasso.resumeTag(getApplicationContext());
-                } else {
-                    picasso.pauseTag(getApplicationContext());
-                }
+
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 int topRowVerticalPosition =
-                        (mListView == null || mListView.getChildCount() == 0) ?
-                                0 : mListView.getChildAt(0).getTop();
+                        (gridView == null || gridView.getChildCount() == 0) ?
+                                0 : gridView.getChildAt(0).getTop();
                 mSwipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
             }
         });
 
-        mFloatingActionButton.attachToListView(mListView);
-        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showInformation(v);
-            }
-        });
+    }
 
-        infoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressWarnings("deprecation")
-            @Override
-            public void onGlobalLayout() {
-
-                if(infoView.getWidth() > 0) {
-
-                    Bitmap b = Utils.viewToBitmap(infoView, infoView.getWidth(), infoView.getHeight());
-                    spotlightView.createShaderB(b);
-                    maskScale = spotlightView.computeMaskScale(Math.max(spotlightView.getHeight(), spotlightView.getWidth()) * 4.0f);
-
-                    Utils.removeOnGlobalLayoutListenerCompat(infoView, this);
-                }
-
-            }
-        });
-
-        spotlightView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressWarnings("deprecation")
-            @Override
-            public void onGlobalLayout() {
-
-                spotlightView.setMaskX(mFloatingActionButton.getRight() - (mFloatingActionButton.getWidth() / 2));
-                spotlightView.setMaskY(mFloatingActionButton.getBottom() - (mFloatingActionButton.getHeight() / 2));
-
-                Utils.removeOnGlobalLayoutListenerCompat(spotlightView, this);
-            }
-        });
-
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.activity_main;
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(infoView.getVisibility() == View.VISIBLE) {
-            showInformation(mFloatingActionButton);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     private boolean isRefreshing() {
@@ -249,36 +143,17 @@ public class MainActivity extends ActionBarActivity{
         @Override
         protected void onPostExecute(String result) {
             if(mFeeds != null){
-                mAdapter = new FeedsListAdapter(MainActivity.this, mFeeds);
                 Collections.sort(mFeeds, new SortingOrder());
                 isRefreshing = false;
 
                 mSwipeRefreshLayout.setRefreshing(isRefreshing);
-                mListView.setAdapter(mAdapter);
-
-                /*DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
-                databaseHelper.flush();
-                for(RssFeed rssFeed: mFeeds) {
-                    databaseHelper.insertFeed(rssFeed);
-                }
-
-                Cursor cursor = databaseHelper.getWritableDatabase().query(DatabaseHelper.TABLE_FEED, new String[] {"COL_ID AS _id, *"},null, null, null, null, null);
-                FeedsCursorAdapter feedsCursorAdapter = new FeedsCursorAdapter(getApplicationContext(), cursor);
-                mListView.setAdapter(feedsCursorAdapter);
-                feedsCursorAdapter.notifyDataSetChanged();*/
-
-                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                GridAdpater adpater = new GridAdpater(mFeeds);
+                gridView.setAdapter(adpater);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-
-                        try {
-                            getBitmapFromUrl(mFeeds.get(position), view);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
-
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String url = mFeeds.get(position).getImgLink();
+                        DetailActivity.launch(MainActivity.this, view.findViewById(R.id.image), url, mFeeds.get(position).getTitle(), mFeeds.get(position).getDescription());
                     }
                 });
             }
@@ -290,142 +165,4 @@ public class MainActivity extends ActionBarActivity{
         }
     }
 
-    private class BitmapCallable implements Callable<Bitmap> {
-
-        String url;
-
-        public BitmapCallable(String url) {
-            this.url = url;
-        }
-
-        @Override
-        public Bitmap call() throws Exception {
-            return BitmapFactory.decodeStream(new URL(url).openConnection().getInputStream());
-        }
-    }
-
-    public void getBitmapFromUrl(RssFeed feed, View view) throws InterruptedException, ExecutionException {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        BitmapCallable bitmapCallable = new BitmapCallable(feed.getImgLink());
-        Future<Bitmap> future = executor.submit(bitmapCallable);
-        executor.shutdown();
-        Bitmap bitmap = future.get();
-
-        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-        intent.putExtra(Keys.KEY_TITLE, feed.getTitle());
-        intent.putExtra(Keys.KEY_DESCRIPTION, feed.getDescription());
-
-        ImageView hero = (ImageView) ((View) view.getParent()).findViewById(R.id.img_feed);
-
-        sPhotoCache.put(intent.getIntExtra(Keys.KEY_PHOTO, -1), bitmap);
-
-        if(Utils.hasLollipop()) {
-            ActivityOptions options =
-                    ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, hero, "photo_hero");
-            startActivity(intent, options.toBundle());
-        }
-
-    }
-
-    public void showInformation(View view) {
-        if (Utils.hasLollipop()) {
-            toggleInformationView(view);
-        }
-        else {
-            if(infoView.getVisibility() == View.INVISIBLE) {
-                createScaleAnimation(spotlightView);
-            } else {
-                createShrinkAnimation(spotlightView);
-            }
-        }
-    }
-
-    @TargetApi(21)
-    private void toggleInformationView(View view) {
-        final View infoContainer = infoView;
-
-        int cx = (view.getLeft() + view.getRight()) / 2;
-        int cy = (view.getTop() + view.getBottom()) / 2;
-        float radius = Math.max(infoContainer.getWidth(), infoContainer.getHeight()) * 2.0f;
-
-        Animator reveal;
-        if (infoContainer.getVisibility() == View.INVISIBLE) {
-            infoContainer.setVisibility(View.VISIBLE);
-            reveal = ViewAnimationUtils.createCircularReveal(
-                    infoContainer, cx, cy, 0, radius);
-            reveal.setInterpolator(new AccelerateInterpolator(2.0f));
-        } else {
-            reveal = ViewAnimationUtils.createCircularReveal(
-                    infoContainer, cx, cy, radius, 0);
-            reveal.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    infoContainer.setVisibility(View.INVISIBLE);
-                }
-            });
-            reveal.setInterpolator(new DecelerateInterpolator(2.0f));
-        }
-        reveal.setDuration(600);
-        reveal.start();
-    }
-
-    private void createScaleAnimation(final SpotlightView spotlight) {
-        spotlight.setVisibility(View.VISIBLE);
-
-        com.nineoldandroids.animation.ObjectAnimator superScale = com.nineoldandroids.animation.ObjectAnimator.ofFloat(spotlight, "maskScale", maskScale);
-        superScale.addListener(new com.nineoldandroids.animation.Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(com.nineoldandroids.animation.Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(com.nineoldandroids.animation.Animator animation) {
-                infoView.setVisibility(View.VISIBLE);
-                spotlight.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationCancel(com.nineoldandroids.animation.Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(com.nineoldandroids.animation.Animator animation) {
-
-            }
-        });
-        superScale.start();
-    }
-
-    private void createShrinkAnimation(final SpotlightView spotlight) {
-        infoView.setVisibility(View.INVISIBLE);
-        spotlight.setVisibility(View.VISIBLE);
-        spotlight.setMaskScale(maskScale);
-
-        com.nineoldandroids.animation.ObjectAnimator superShrink = ObjectAnimator.ofFloat(spotlight, "maskScale", maskScale, 0.5f);
-        superShrink.addListener(new com.nineoldandroids.animation.Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(com.nineoldandroids.animation.Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(com.nineoldandroids.animation.Animator animation) {
-                spotlight.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationCancel(com.nineoldandroids.animation.Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(com.nineoldandroids.animation.Animator animation) {
-
-            }
-        });
-        superShrink.start();
-    }
 }
