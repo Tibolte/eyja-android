@@ -70,6 +70,10 @@ public class DetailActivity extends BaseActivity {
 
         txtTitle.setText(getIntent().getStringExtra(Keys.KEY_TITLE));
         txtDescription.setText(getIntent().getStringExtra(Keys.KEY_CONTENT));
+
+        if(getIntent().getStringExtra(Keys.KEY_PHOTO) == null) {
+            image.setVisibility(View.GONE);
+        }
     }
 
     private void colorize(Bitmap photo) {

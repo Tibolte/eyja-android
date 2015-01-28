@@ -137,6 +137,7 @@ public class MainActivity extends BaseActivity{
         Log.d(TAG, "FinishTask: entered, taskExecutionNumber = " + taskExecutionNumber);
 
         if(taskExecutionNumber == TASK_TO_EXECUTE) {
+
             GridAdpater adpater = new GridAdpater(mFeeds);
             gridView.setAdapter(adpater);
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

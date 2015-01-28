@@ -1,5 +1,7 @@
 package fr.northborders.eyja.rss;
 
+import android.util.Log;
+
 import org.jsoup.Jsoup;
 import org.jsoup.examples.HtmlToPlainText;
 import org.jsoup.nodes.Document;
@@ -95,6 +97,10 @@ public class XmlHandler extends DefaultHandler {
                 new Thread(parseContentThread).start();
             }
 
+            if(feedStr.getTitle().equals("Comment contacter nos correspondants ?")){
+                rssList.remove(feedStr);
+            }
+
             feedStr = new RssFeed();
             articlesAdded++;
             if (articlesAdded >= ARTICLES_LIMIT) {
@@ -144,12 +150,12 @@ public class XmlHandler extends DefaultHandler {
                 doc = Jsoup.connect(feed.getUrl().toString()).get();
                 String text = new String();
                 if(feed.getUrl().toString().contains("ouest-france")) { //ouest-france
-                    for( Element element : doc.select("li") ) {
+                    /*for( Element element : doc.select("li") ) {
                         element.remove();
                     }
                     for( Element element : doc.select("span") ) {
                         element.remove();
-                    }
+                    }*/
 
                     Elements article = doc.select("article");
                     StringBuilder sb = new StringBuilder();
@@ -159,6 +165,15 @@ public class XmlHandler extends DefaultHandler {
                     }
 
                     text = sb.toString().trim();
+
+                    if(text.equals("")) { //vide, essayons de récupérer depuis l'image
+                        Element e = doc.select("article").first();
+                        Element img = e.select("img").first();
+                        if(img != null) {
+                            text = img.attr("alt");
+                        }
+                    }
+
                 }
                 else { //telegramme
                     for( Element element : doc.select("li") ) {
@@ -181,6 +196,15 @@ public class XmlHandler extends DefaultHandler {
                 }
 
                 feed.setContent(text);
+
+                /*if(feed.getContent().equals("")) {
+                    rssList.remove(feed); //better remove that element, this is useless
+                }
+
+                if(feed.getContent() == null) {
+                    rssList.remove(feedStr);
+                }*/
+
                 //Log.d(TAG, String.format("retriving text: %s", text));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -188,19 +212,4 @@ public class XmlHandler extends DefaultHandler {
         }
     }
 
-    public static String cleanTagPerservingLineBreaks(String html) {
-        String result = "";
-        if (html == null)
-            return html;
-        Document document = Jsoup.parse(html);
-        document.outputSettings(new Document.OutputSettings()
-                .prettyPrint(false));// makes html() preserve linebreaks and
-        // spacing
-        document.select("br").append("\\n");
-        document.select("p").prepend("\\n\\n");
-        result = document.html().replaceAll("\\\\n", "\n");
-        result = Jsoup.clean(result, "", Whitelist.none(),
-                new Document.OutputSettings().prettyPrint(false));
-        return result;
-    }
 }
