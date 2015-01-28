@@ -1,9 +1,12 @@
 package fr.northborders.eyja;
 
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -11,8 +14,10 @@ import android.widget.GridView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -25,6 +30,7 @@ import fr.northborders.eyja.rss.XmlHandler;
 public class MainActivity extends BaseActivity{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int TASK_TO_EXECUTE = 3;
 
     @InjectView(R.id.swipe_container)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -37,7 +43,10 @@ public class MainActivity extends BaseActivity{
 
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
-    private RssFeedTask mRssFeedTask;
+
+    // each task increments this count as soon as it enters its doInBackground()
+    // so this allows to track the order of tasks execution
+    private AtomicInteger executedTasksCount;
 
     /**
      * MARK: Lifecycle methods
@@ -49,6 +58,8 @@ public class MainActivity extends BaseActivity{
 
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+
+        executedTasksCount = new AtomicInteger(0); // reset this count
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -64,8 +75,7 @@ public class MainActivity extends BaseActivity{
                 R.color.accent
                 );
 
-        mRssFeedTask = new RssFeedTask();
-        mRssFeedTask.execute();
+        startTasks();
 
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -94,10 +104,6 @@ public class MainActivity extends BaseActivity{
         super.onSaveInstanceState(outState);
     }
 
-    private boolean isRefreshing() {
-        return mRssFeedTask.isRefreshing();
-    }
-
     private final Runnable refreshing = new Runnable() {
 
         @Override
@@ -107,9 +113,7 @@ public class MainActivity extends BaseActivity{
                     // re run the verification after 1 second
                     mHandler.postDelayed(this, 1000);
                 }else{
-                    // stop the animation after the data is fully loaded
-                    mRssFeedTask = new RssFeedTask();
-                    mRssFeedTask.execute();
+                    startTasks();
                 }
             }
             catch (Exception e) {
@@ -118,9 +122,48 @@ public class MainActivity extends BaseActivity{
         }
     };
 
-    private class RssFeedTask extends AsyncTask<String, Void, String> {
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void startTasks() {
+        RssFeedOuestFranceTask ouestFranceTask = new RssFeedOuestFranceTask();
+        RssFeedOuestFranceLocamriaTask rssFeedOuestFranceLocamriaTask = new RssFeedOuestFranceLocamriaTask();
+        RssFeedTelegrammeTask telegrammeTask = new RssFeedTelegrammeTask();
+        ouestFranceTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        rssFeedOuestFranceLocamriaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        telegrammeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    private void finishTask() {
+        int taskExecutionNumber = executedTasksCount.incrementAndGet();
+        Log.d(TAG, "FinishTask: entered, taskExecutionNumber = " + taskExecutionNumber);
+
+        if(taskExecutionNumber == TASK_TO_EXECUTE) {
+            GridAdpater adpater = new GridAdpater(mFeeds);
+            gridView.setAdapter(adpater);
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String url = mFeeds.get(position).getImgLink();
+                    DetailActivity.launch(MainActivity.this, view.findViewById(R.id.image), url, mFeeds.get(position).getTitle(), mFeeds.get(position).getContent());
+                }
+            });
+            executedTasksCount = new AtomicInteger(0);
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean isRefreshing() {
+        if(executedTasksCount.get() < TASK_TO_EXECUTE) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private class RssFeedTelegrammeTask extends AsyncTask<String, Void, String> {
         private boolean isRefreshing = false;
         String response = "";
+        private List<RssFeed> telegrammeFeeds = new ArrayList<RssFeed>();
 
         @Override
         protected void onPreExecute() {
@@ -134,35 +177,89 @@ public class MainActivity extends BaseActivity{
             try {
                 String feed = getString(R.string.telegramme_belle_ile);
                 XmlHandler rh = new XmlHandler();
-                mFeeds = rh.getLatestArticles(feed);
+                telegrammeFeeds = rh.getLatestArticles(feed);
             } catch (Exception e) {
+                Log.d(TAG, "Telegrammes task, inBackground Exception");
             }
             return response;
         }
 
         @Override
         protected void onPostExecute(String result) {
-            if(mFeeds != null){
-                Collections.sort(mFeeds, new SortingOrder());
-                isRefreshing = false;
+            if(telegrammeFeeds != null){
+                Collections.sort(telegrammeFeeds, new SortingOrder());
 
-                mSwipeRefreshLayout.setRefreshing(isRefreshing);
-                GridAdpater adpater = new GridAdpater(mFeeds);
-                gridView.setAdapter(adpater);
-                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        String url = mFeeds.get(position).getImgLink();
-                        DetailActivity.launch(MainActivity.this, view.findViewById(R.id.image), url, mFeeds.get(position).getTitle(), mFeeds.get(position).getDescription());
-                    }
-                });
+                if(mFeeds == null) {
+                    mFeeds = new ArrayList<RssFeed>();
+                }
+                mFeeds.addAll(telegrammeFeeds);
+
+                finishTask();
             }
-            progressBar.setVisibility(View.GONE);
-        }
-
-        public boolean isRefreshing() {
-            return isRefreshing;
         }
     }
 
+    private class RssFeedOuestFranceTask extends AsyncTask<String, Void, String> {
+
+        String response = "";
+        private List<RssFeed> ouestFeeds = new ArrayList<RssFeed>();
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                String feed = getString(R.string.ouest_france_sauzon);
+                XmlHandler rh = new XmlHandler();
+                ouestFeeds = rh.getLatestArticles(feed);
+            } catch (Exception e) {
+                Log.d(TAG, "Telegrammes task, inBackground Exception");
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if(ouestFeeds != null){
+                Collections.sort(ouestFeeds, new SortingOrder());
+
+                if(mFeeds == null) {
+                    mFeeds = new ArrayList<RssFeed>();
+                }
+                mFeeds.addAll(ouestFeeds);
+
+                finishTask();
+            }
+        }
+    }
+
+    private class RssFeedOuestFranceLocamriaTask extends AsyncTask<String, Void, String> {
+
+        String response = "";
+        private List<RssFeed> ouestFeeds = new ArrayList<RssFeed>();
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                String feed = getString(R.string.ouest_france_locmaria);
+                XmlHandler rh = new XmlHandler();
+                ouestFeeds = rh.getLatestArticles(feed);
+            } catch (Exception e) {
+                Log.d(TAG, "Telegrammes task, inBackground Exception");
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if(ouestFeeds != null){
+                Collections.sort(ouestFeeds, new SortingOrder());
+
+                if(mFeeds == null) {
+                    mFeeds = new ArrayList<RssFeed>();
+                }
+                mFeeds.addAll(ouestFeeds);
+
+                finishTask();
+            }
+        }
+    }
 }

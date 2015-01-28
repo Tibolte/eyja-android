@@ -1,7 +1,11 @@
 package fr.northborders.eyja.rss;
 
 import org.jsoup.Jsoup;
+import org.jsoup.examples.HtmlToPlainText;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -138,13 +142,65 @@ public class XmlHandler extends DefaultHandler {
             Document doc = null;
             try {
                 doc = Jsoup.connect(feed.getUrl().toString()).get();
-                Elements article = doc.select("article");
-                String text = article.text();
+                String text = new String();
+                if(feed.getUrl().toString().contains("ouest-france")) { //ouest-france
+                    for( Element element : doc.select("li") ) {
+                        element.remove();
+                    }
+                    for( Element element : doc.select("span") ) {
+                        element.remove();
+                    }
+
+                    Elements article = doc.select("article");
+                    StringBuilder sb = new StringBuilder();
+
+                    for( Element element : article.select("p") ) {
+                        sb.append(element.text()).append('\n').append('\n');
+                    }
+
+                    text = sb.toString().trim();
+                }
+                else { //telegramme
+                    for( Element element : doc.select("li") ) {
+                        element.remove();
+                    }
+                    for( Element element : doc.select("span") ) {
+                        element.remove();
+                    }
+                    for( Element element : doc.select("h1") ) {
+                        element.remove();
+                    }
+                    for( Element element : doc.select("time") ) {
+                        element.remove();
+                    }
+
+                    Elements article = doc.select("article");
+
+                    text = article.text();
+
+                }
+
                 feed.setContent(text);
                 //Log.d(TAG, String.format("retriving text: %s", text));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static String cleanTagPerservingLineBreaks(String html) {
+        String result = "";
+        if (html == null)
+            return html;
+        Document document = Jsoup.parse(html);
+        document.outputSettings(new Document.OutputSettings()
+                .prettyPrint(false));// makes html() preserve linebreaks and
+        // spacing
+        document.select("br").append("\\n");
+        document.select("p").prepend("\\n\\n");
+        result = document.html().replaceAll("\\\\n", "\n");
+        result = Jsoup.clean(result, "", Whitelist.none(),
+                new Document.OutputSettings().prettyPrint(false));
+        return result;
     }
 }
