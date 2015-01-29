@@ -86,11 +86,63 @@ public class XmlHandler extends DefaultHandler {
             rssList.add(feedStr);
 
             if (feedStr.getUrl() != null) {
-                ParseContentThread parseContentThread = new ParseContentThread(feedStr);
-                new Thread(parseContentThread).start();
+                /*ParseContentThread parseContentThread = new ParseContentThread(feedStr);
+                new Thread(parseContentThread).start();*/
+                Document doc = null;
+                try {
+                    doc = Jsoup.connect(feedStr.getUrl().toString()).get();
+                    String text = new String();
+                    if (feedStr.getUrl().toString().contains("ouest-france")) { //ouest-france
+
+                        Elements article = doc.select("article");
+                        StringBuilder sb = new StringBuilder();
+
+                        for (Element element : article.select("p")) {
+                            sb.append(element.text()).append('\n').append('\n');
+                        }
+
+                        text = sb.toString().trim();
+
+                        if (text.equals("")) { //vide, essayons de récupérer depuis l'image
+                            Element e = doc.select("article").first();
+                            Element img = e.select("img").first();
+                            if (img != null) {
+                                text = img.attr("alt");
+                            }
+                        }
+
+                    } else { //telegramme
+                        for (Element element : doc.select("li")) {
+                            element.remove();
+                        }
+                        for (Element element : doc.select("span")) {
+                            element.remove();
+                        }
+                        for (Element element : doc.select("h1")) {
+                            element.remove();
+                        }
+                        for (Element element : doc.select("time")) {
+                            element.remove();
+                        }
+
+                        Elements article = doc.select("article");
+
+                        text = article.text();
+
+                    }
+
+                    feedStr.setContent(text);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             if (feedStr.getTitle().equals("Comment contacter nos correspondants ?")) {
+                rssList.remove(feedStr);
+            }
+
+            if (feedStr.getContent().equals("")) {
                 rssList.remove(feedStr);
             }
 
@@ -143,12 +195,6 @@ public class XmlHandler extends DefaultHandler {
                 doc = Jsoup.connect(feed.getUrl().toString()).get();
                 String text = new String();
                 if (feed.getUrl().toString().contains("ouest-france")) { //ouest-france
-                    /*for( Element element : doc.select("li") ) {
-                        element.remove();
-                    }
-                    for( Element element : doc.select("span") ) {
-                        element.remove();
-                    }*/
 
                     Elements article = doc.select("article");
                     StringBuilder sb = new StringBuilder();
@@ -188,14 +234,6 @@ public class XmlHandler extends DefaultHandler {
                 }
 
                 feed.setContent(text);
-
-                /*if(feed.getContent().equals("")) {
-                    rssList.remove(feed); //better remove that element, this is useless
-                }
-
-                if(feed.getContent() == null) {
-                    rssList.remove(feedStr);
-                }*/
 
                 //Log.d(TAG, String.format("retriving text: %s", text));
             } catch (IOException e) {
