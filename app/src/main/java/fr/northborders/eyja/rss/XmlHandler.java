@@ -33,22 +33,17 @@ import fr.northborders.eyja.model.RssFeed;
 public class XmlHandler extends DefaultHandler {
 
     private static final String TAG = XmlHandler.class.getSimpleName();
-
-    private RssFeed feedStr = new RssFeed();
-    private List<RssFeed> rssList = new ArrayList<RssFeed>();
-
-    private int articlesAdded = 0;
-
     // Number of articles to download
     private static final int ARTICLES_LIMIT = 25;
-
     StringBuffer chars = new StringBuffer();
+    private RssFeed feedStr = new RssFeed();
+    private List<RssFeed> rssList = new ArrayList<RssFeed>();
+    private int articlesAdded = 0;
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         chars = new StringBuffer();
 
-        if (qName.equalsIgnoreCase("media:content"))
-        {
+        if (qName.equalsIgnoreCase("media:content")) {
             if (!attributes.getValue("url").toString().equalsIgnoreCase("null")) {
                 feedStr.setImgLink(attributes.getValue("url").toString());
             } else {
@@ -76,9 +71,7 @@ public class XmlHandler extends DefaultHandler {
         } else if (localName.equalsIgnoreCase("encoded")) {
 
             feedStr.setEncodedContent(chars.toString());
-        } else if (qName.equalsIgnoreCase("media:content"))
-
-        {
+        } else if (qName.equalsIgnoreCase("media:content")) {
 
         } else if (localName.equalsIgnoreCase("link")) {
 
@@ -92,12 +85,12 @@ public class XmlHandler extends DefaultHandler {
         if (localName.equalsIgnoreCase("item")) {
             rssList.add(feedStr);
 
-            if(feedStr.getUrl() != null) {
+            if (feedStr.getUrl() != null) {
                 ParseContentThread parseContentThread = new ParseContentThread(feedStr);
                 new Thread(parseContentThread).start();
             }
 
-            if(feedStr.getTitle().equals("Comment contacter nos correspondants ?")){
+            if (feedStr.getTitle().equals("Comment contacter nos correspondants ?")) {
                 rssList.remove(feedStr);
             }
 
@@ -149,7 +142,7 @@ public class XmlHandler extends DefaultHandler {
             try {
                 doc = Jsoup.connect(feed.getUrl().toString()).get();
                 String text = new String();
-                if(feed.getUrl().toString().contains("ouest-france")) { //ouest-france
+                if (feed.getUrl().toString().contains("ouest-france")) { //ouest-france
                     /*for( Element element : doc.select("li") ) {
                         element.remove();
                     }
@@ -160,32 +153,31 @@ public class XmlHandler extends DefaultHandler {
                     Elements article = doc.select("article");
                     StringBuilder sb = new StringBuilder();
 
-                    for( Element element : article.select("p") ) {
+                    for (Element element : article.select("p")) {
                         sb.append(element.text()).append('\n').append('\n');
                     }
 
                     text = sb.toString().trim();
 
-                    if(text.equals("")) { //vide, essayons de récupérer depuis l'image
+                    if (text.equals("")) { //vide, essayons de récupérer depuis l'image
                         Element e = doc.select("article").first();
                         Element img = e.select("img").first();
-                        if(img != null) {
+                        if (img != null) {
                             text = img.attr("alt");
                         }
                     }
 
-                }
-                else { //telegramme
-                    for( Element element : doc.select("li") ) {
+                } else { //telegramme
+                    for (Element element : doc.select("li")) {
                         element.remove();
                     }
-                    for( Element element : doc.select("span") ) {
+                    for (Element element : doc.select("span")) {
                         element.remove();
                     }
-                    for( Element element : doc.select("h1") ) {
+                    for (Element element : doc.select("h1")) {
                         element.remove();
                     }
-                    for( Element element : doc.select("time") ) {
+                    for (Element element : doc.select("time")) {
                         element.remove();
                     }
 
