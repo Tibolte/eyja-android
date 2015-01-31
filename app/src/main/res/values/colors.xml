@@ -19,4 +19,6 @@
     <color name="default_light_vibrant">#fcda99</color>
     <color name="default_muted">#7f7c8a</color>
 
+    <color name="no_track_branding_session_tile_overlay">#8333</color>
+
 </resources>

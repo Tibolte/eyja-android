@@ -3,6 +3,9 @@ package fr.northborders.eyja.util;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -21,6 +24,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Utils {
 
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
+    /**
+     * Factor applied to session color to derive the background color on panels and when
+     * a session photo could not be downloaded (or while it is being downloaded)
+     */
+    public static final float SESSION_BG_COLOR_SCALE_FACTOR = 0.75f;
+
+    private static final float SESSION_PHOTO_SCRIM_ALPHA = 0.25f; // 0=invisible, 1=visible image
+    private static final float SESSION_PHOTO_SCRIM_SATURATION = 0.2f; // 0=gray, 1=color image
 
     @SuppressWarnings("deprecation")
     public static void removeOnGlobalLayoutListenerCompat(View v, ViewTreeObserver.OnGlobalLayoutListener listener) {
@@ -99,4 +111,25 @@ public class Utils {
         }
     }
 
+    public static int scaleColor(int color, float factor, boolean scaleAlpha) {
+        return Color.argb(scaleAlpha ? (Math.round(Color.alpha(color) * factor)) : Color.alpha(color),
+                Math.round(Color.red(color) * factor), Math.round(Color.green(color) * factor),
+                Math.round(Color.blue(color) * factor));
+    }
+
+    public static int scaleSessionColorToDefaultBG(int color) {
+        return scaleColor(color, SESSION_BG_COLOR_SCALE_FACTOR, false);
+    }
+
+    // Desaturates and color-scrims the image
+    public static ColorFilter makeSessionImageScrimColorFilter(int sessionColor) {
+        float a = SESSION_PHOTO_SCRIM_ALPHA;
+        float sat = SESSION_PHOTO_SCRIM_SATURATION; // saturation (0=gray, 1=color)
+        return new ColorMatrixColorFilter(new float[]{
+                ((1 - 0.213f) * sat + 0.213f) * a, ((0 - 0.715f) * sat + 0.715f) * a, ((0 - 0.072f) * sat + 0.072f) * a, 0, Color.red(sessionColor) * (1 - a),
+                ((0 - 0.213f) * sat + 0.213f) * a, ((1 - 0.715f) * sat + 0.715f) * a, ((0 - 0.072f) * sat + 0.072f) * a, 0, Color.green(sessionColor) * (1 - a),
+                ((0 - 0.213f) * sat + 0.213f) * a, ((0 - 0.715f) * sat + 0.715f) * a, ((1 - 0.072f) * sat + 0.072f) * a, 0, Color.blue(sessionColor) * (1 - a),
+                0, 0, 0, 0, 255
+        });
+    }
 }
