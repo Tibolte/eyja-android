@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
@@ -13,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import fr.northborders.eyja.adapters.FeedsListAdapter;
 import fr.northborders.eyja.adapters.GridAdpater;
+import fr.northborders.eyja.adapters.RecyclerAdapter;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
@@ -38,11 +43,12 @@ public class MainActivity extends BaseActivity{
     @InjectView(R.id.progressBarCircularIndeterminate)
     ProgressBarCircularIndeterminate progressBar;
 
-    @InjectView(R.id.gridView)
-    GridView gridView;
+    @InjectView(R.id.recyclerview)
+    RecyclerView recyclerView;
 
     private Handler mHandler = new Handler();
     private List<RssFeed> mFeeds;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     // each task increments this count as soon as it enters its doInBackground()
     // so this allows to track the order of tasks execution
@@ -61,6 +67,15 @@ public class MainActivity extends BaseActivity{
 
         executedTasksCount = new AtomicInteger(0); // reset this count
 
+        recyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this) {
+            @Override
+            protected int getExtraLayoutSpace(RecyclerView.State state) {
+                return 300;
+            }
+        };
+        recyclerView.setLayoutManager(mLayoutManager);
+
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -76,22 +91,6 @@ public class MainActivity extends BaseActivity{
                 );
 
         startTasks();
-
-        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                int topRowVerticalPosition =
-                        (gridView == null || gridView.getChildCount() == 0) ?
-                                0 : gridView.getChildAt(0).getTop();
-                mSwipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-            }
-        });
 
     }
 
@@ -138,15 +137,9 @@ public class MainActivity extends BaseActivity{
 
         if(taskExecutionNumber == TASK_TO_EXECUTE) {
 
-            GridAdpater adpater = new GridAdpater(mFeeds);
-            gridView.setAdapter(adpater);
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String url = mFeeds.get(position).getImgLink();
-                    DetailActivity.launch(MainActivity.this, view.findViewById(R.id.image), url, mFeeds.get(position).getTitle(), mFeeds.get(position).getContent());
-                }
-            });
+            RecyclerAdapter adapter = new RecyclerAdapter(mFeeds, this);
+            recyclerView.setAdapter(adapter);
+
             executedTasksCount = new AtomicInteger(0);
             progressBar.setVisibility(View.GONE);
         }

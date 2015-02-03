@@ -1,22 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/FeedItem">
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="8dp"
+    card_view:cardCornerRadius="4dp">
 
-    <ImageView
-        android:id="@+id/img_feed"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/feed_item_height"
-        android:scaleType="centerCrop"/>
+        android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        <ImageView
+            android:id="@+id/img_feed"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/feed_item_height"
+            android:scaleType="centerCrop"/>
 
-        <TextView
-            android:id="@+id/txt_feed_title"
-            style="@style/FeedTitle"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true">
 
-     </LinearLayout>
+            <TextView
+                android:id="@+id/txt_feed_title"
+                style="@style/FeedTitle"/>
 
-</RelativeLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
