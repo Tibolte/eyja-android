@@ -20,17 +20,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!--<GridView-->
-                <!--android:id="@+id/gridView"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:padding="4dp"-->
-                <!--android:columnWidth="@dimen/item_width"-->
-                <!--android:numColumns="auto_fit"-->
-                <!--android:horizontalSpacing="4dp"-->
-                <!--android:verticalSpacing="4dp"-->
-                <!--android:stretchMode="columnWidth"/>-->
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview"
                 android:layout_width="match_parent"

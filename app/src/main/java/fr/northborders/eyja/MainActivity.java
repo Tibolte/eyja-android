@@ -10,12 +10,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.GridView;
 
 import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,15 +20,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import fr.northborders.eyja.adapters.FeedsListAdapter;
-import fr.northborders.eyja.adapters.GridAdpater;
+
 import fr.northborders.eyja.adapters.RecyclerAdapter;
 import fr.northborders.eyja.model.RssFeed;
 import fr.northborders.eyja.rss.SortingOrder;
 import fr.northborders.eyja.rss.XmlHandler;
 
 
-public class MainActivity extends BaseActivity{
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int TASK_TO_EXECUTE = 3;
